@@ -1,0 +1,8 @@
+---
+- name: Install Node Exporter on all monitoring servers
+  hosts: servers
+  become: true
+  gather_facts: true
+
+  roles:
+    - node_exporter

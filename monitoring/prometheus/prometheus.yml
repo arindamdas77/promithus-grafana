@@ -1,0 +1,29 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+
+  - job_name: "server-01"
+    static_configs:
+      - targets:
+          - "89.116.32.43:9100"
+        labels:
+          server: "Maxbridge Development Server"
+          environment: "development"
+
+  - job_name: "server-02"
+    static_configs:
+      - targets:
+          - "46.28.44.148:9100"
+        labels:
+          server: "Dhellavita"
+          environment: "production"
+
+  - job_name: "server-03"
+    static_configs:
+      - targets:
+          - "187.127.135.132:9100"
+        labels:
+          server: "Citysync"
+          environment: "production"

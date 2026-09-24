@@ -1,0 +1,77 @@
+---
+- name: Configure Grafana Monitoring
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    monitoring_dir: "{{ playbook_dir }}/../monitoring"
+    grafana_container: grafana
+
+  tasks:
+
+    - name: Check Grafana container
+      ansible.builtin.command:
+        cmd: docker ps --filter name={{ grafana_container }} --format "{{ '{{.Names}}' }}"
+      register: grafana_container_check
+      changed_when: false
+
+    - name: Verify Grafana container is running
+      ansible.builtin.assert:
+        that:
+          - grafana_container in grafana_container_check.stdout_lines
+        fail_msg: "Grafana container is not running."
+        success_msg: "Grafana container is running."
+
+    - name: Create Grafana provisioning directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ monitoring_dir }}/grafana/provisioning/datasources"
+        - "{{ monitoring_dir }}/grafana/provisioning/dashboards"
+        - "{{ monitoring_dir }}/grafana/dashboards"
+
+    - name: Copy Prometheus datasource configuration
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../configs/grafana/provisioning/datasources/prometheus.yml"
+        dest: "{{ monitoring_dir }}/grafana/provisioning/datasources/prometheus.yml"
+        mode: "0644"
+
+    - name: Copy Grafana dashboard provider configuration
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../configs/grafana/provisioning/dashboards/dashboards.yml"
+        dest: "{{ monitoring_dir }}/grafana/provisioning/dashboards/dashboards.yml"
+        mode: "0644"
+
+    - name: Copy server monitoring dashboard
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../configs/grafana/dashboards/server-monitoring.json"
+        dest: "{{ monitoring_dir }}/grafana/dashboards/server-monitoring.json"
+        mode: "0644"
+
+    - name: Restart Grafana
+      ansible.builtin.command:
+        cmd: docker compose restart grafana
+        chdir: "{{ monitoring_dir }}"
+      changed_when: true
+
+    - name: Wait for Grafana
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 3012
+        delay: 5
+        timeout: 60
+
+    - name: Display result
+      ansible.builtin.debug:
+        msg:
+          - "=============================================="
+          - "GRAFANA PROVISIONING COMPLETE"
+          - "=============================================="
+          - "Grafana: http://localhost:3012"
+          - "Dashboard: 3 Server Infrastructure Monitoring"
+          - "Datasource: prometheus-1"
+          - "Folder: Infrastructure"
+          - "=============================================="

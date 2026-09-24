@@ -18,5 +18,27 @@ services:
       - "--storage.tsdb.retention.time=30d"
       - "--web.enable-lifecycle"
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+
+    ports:
+      - "3012:3000"
+
+    volumes:
+      # Grafana database, plugins, users, etc.
+      - grafana_data:/var/lib/grafana
+
+      # Grafana provisioning configuration
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+
+      # Grafana dashboards managed by Ansible
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+    depends_on:
+      - prometheus
+
 volumes:
   prometheus_data:
+  grafana_data:

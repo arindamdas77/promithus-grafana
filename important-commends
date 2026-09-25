@@ -1,0 +1,9 @@
+######Password Reset####
+docker exec -it grafana grafana cli \
+  --homepath /usr/share/grafana \
+  admin reset-admin-password \
+  --user-id 1 \
+  'Admin@123456'
+#########Check#####
+curl -i -u 'admin:Admin@123456' http://localhost:3012/api/org
+#################################

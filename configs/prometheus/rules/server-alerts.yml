@@ -1,0 +1,264 @@
+groups:
+
+  # ==========================================================
+  # SERVER AVAILABILITY
+  # ==========================================================
+  - name: server-availability
+    interval: 30s
+
+    rules:
+
+      - alert: ServerDown
+        expr: up{instance=~".*:9100"} == 0
+        for: 2m
+
+        labels:
+          severity: critical
+          category: availability
+
+        annotations:
+          summary: "Server {{ $labels.server }} is down"
+          description: "Server {{ $labels.server }} ({{ $labels.instance }}) has been unreachable for more than 2 minutes."
+
+
+      - alert: NodeExporterDown
+        expr: up{instance=~".*:9100"} == 0
+        for: 2m
+
+        labels:
+          severity: critical
+          category: monitoring
+
+        annotations:
+          summary: "Node Exporter is down on {{ $labels.server }}"
+          description: "Prometheus cannot scrape Node Exporter on {{ $labels.server }} ({{ $labels.instance }})."
+
+
+  # ==========================================================
+  # CPU
+  # ==========================================================
+  - name: server-cpu
+    interval: 30s
+
+    rules:
+
+      - alert: HighCPU
+        expr: |
+          100 -
+          (
+            avg by (server, instance) (
+              rate(node_cpu_seconds_total{
+                mode="idle"
+              }[10m])
+            ) * 100
+          ) > 80
+
+        for: 10m
+
+        labels:
+          severity: warning
+          category: cpu
+
+        annotations:
+          summary: "High CPU usage on {{ $labels.server }}"
+          description: "CPU usage on {{ $labels.server }} has been above 80% for more than 10 minutes."
+
+
+      - alert: CriticalCPU
+        expr: |
+          100 -
+          (
+            avg by (server, instance) (
+              rate(node_cpu_seconds_total{
+                mode="idle"
+              }[10m])
+            ) * 100
+          ) > 95
+
+        for: 5m
+
+        labels:
+          severity: critical
+          category: cpu
+
+        annotations:
+          summary: "Critical CPU usage on {{ $labels.server }}"
+          description: "CPU usage on {{ $labels.server }} has been above 95% for more than 5 minutes."
+
+
+  # ==========================================================
+  # MEMORY
+  # ==========================================================
+  - name: server-memory
+    interval: 30s
+
+    rules:
+
+      - alert: HighMemory
+        expr: |
+          (
+            1 -
+            (
+              node_memory_MemAvailable_bytes
+              /
+              node_memory_MemTotal_bytes
+            )
+          ) * 100 > 80
+
+        for: 10m
+
+        labels:
+          severity: warning
+          category: memory
+
+        annotations:
+          summary: "High memory usage on {{ $labels.server }}"
+          description: "Memory usage on {{ $labels.server }} has been above 80% for more than 10 minutes."
+
+
+      - alert: CriticalMemory
+        expr: |
+          (
+            1 -
+            (
+              node_memory_MemAvailable_bytes
+              /
+              node_memory_MemTotal_bytes
+            )
+          ) * 100 > 90
+
+        for: 5m
+
+        labels:
+          severity: critical
+          category: memory
+
+        annotations:
+          summary: "Critical memory usage on {{ $labels.server }}"
+          description: "Memory usage on {{ $labels.server }} has been above 90% for more than 5 minutes."
+
+
+  # ==========================================================
+  # DISK
+  # ==========================================================
+  - name: server-disk
+    interval: 30s
+
+    rules:
+
+      - alert: HighDisk
+        expr: |
+          (
+            1 -
+            (
+              node_filesystem_avail_bytes{
+                fstype!~"tmpfs|overlay|squashfs",
+                mountpoint="/"
+              }
+              /
+              node_filesystem_size_bytes{
+                fstype!~"tmpfs|overlay|squashfs",
+                mountpoint="/"
+              }
+            )
+          ) * 100 > 80
+
+        for: 10m
+
+        labels:
+          severity: warning
+          category: disk
+
+        annotations:
+          summary: "High disk usage on {{ $labels.server }}"
+          description: "Root filesystem on {{ $labels.server }} has been above 80% usage for more than 10 minutes."
+
+
+      - alert: CriticalDisk
+        expr: |
+          (
+            1 -
+            (
+              node_filesystem_avail_bytes{
+                fstype!~"tmpfs|overlay|squashfs",
+                mountpoint="/"
+              }
+              /
+              node_filesystem_size_bytes{
+                fstype!~"tmpfs|overlay|squashfs",
+                mountpoint="/"
+              }
+            )
+          ) * 100 > 90
+
+        for: 5m
+
+        labels:
+          severity: critical
+          category: disk
+
+        annotations:
+          summary: "Critical disk usage on {{ $labels.server }}"
+          description: "Root filesystem on {{ $labels.server }} has been above 90% usage for more than 5 minutes."
+
+
+  # ==========================================================
+  # LOAD
+  # ==========================================================
+  - name: server-load
+    interval: 30s
+
+    rules:
+
+      - alert: HighLoad
+        expr: |
+          node_load1
+          /
+          count by (server, instance) (
+            node_cpu_seconds_total{
+              mode="idle"
+            }
+          )
+          > 1.5
+
+        for: 10m
+
+        labels:
+          severity: warning
+          category: load
+
+        annotations:
+          summary: "High system load on {{ $labels.server }}"
+          description: "1-minute load average is significantly above available CPU capacity on {{ $labels.server }}."
+
+
+  # ==========================================================
+  # SWAP
+  # ==========================================================
+  - name: server-swap
+    interval: 30s
+
+    rules:
+
+      - alert: HighSwap
+        expr: |
+          (
+            1 -
+            (
+              node_memory_SwapFree_bytes
+              /
+              node_memory_SwapTotal_bytes
+            )
+          ) * 100 > 50
+          and
+          node_memory_SwapTotal_bytes > 0
+
+        for: 10m
+
+        labels:
+          severity: warning
+          category: swap
+
+        annotations:
+          summary: "High swap usage on {{ $labels.server }}"
+          description: "Swap usage on {{ $labels.server }} has been above 50% for more than 10 minutes."

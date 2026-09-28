@@ -10,7 +10,8 @@ services:
 
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./prometheus/rules:/etc/prometheus/rules:ro 
+      - ./prometheus/rules:/etc/prometheus/rules:ro
+      - ./blackbox/targets.yml:/etc/prometheus/blackbox/targets.yml:ro
       - prometheus_data:/prometheus
 
     command:
@@ -18,6 +19,23 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=30d"
       - "--web.enable-lifecycle"
+
+    depends_on:
+      - blackbox-exporter
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox-exporter
+    restart: unless-stopped
+
+    ports:
+      - "9115:9115"
+
+    volumes:
+      - ./blackbox/blackbox.yml:/config/blackbox.yml:ro
+
+    command:
+      - "--config.file=/config/blackbox.yml"
 
   grafana:
     image: grafana/grafana:latest
@@ -39,6 +57,7 @@ services:
 
     depends_on:
       - prometheus
+      - blackbox-exporter
 
 volumes:
   prometheus_data:

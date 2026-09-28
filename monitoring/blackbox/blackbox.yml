@@ -1,0 +1,15 @@
+modules:
+  http_2xx:
+    prober: http
+    timeout: 15s
+
+    http:
+      method: GET
+      # 2xx is a normal page. 404 is also up: several APIs answer
+      # {"success":false,"message":"Route not found: /"} when "/" has no route.
+      valid_status_codes: [200, 201, 202, 204, 206, 404]
+      follow_redirects: true
+      preferred_ip_protocol: ip4
+      ip_protocol_fallback: false
+      headers:
+        User-Agent: "Mozilla/5.0 (compatible; WebsiteMonitor/1.0)"

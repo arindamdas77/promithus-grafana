@@ -1,0 +1,75 @@
+groups:
+
+  - name: website-availability
+    interval: 30s
+
+    rules:
+
+      - alert: WebsiteDown
+        expr: probe_success{job="blackbox-http"} == 0
+        for: 2m
+
+        labels:
+          severity: critical
+          category: website
+
+        annotations:
+          summary: "Website DOWN: {{ $labels.website }}"
+          description: "{{ $labels.website }} has failed the HTTP/HTTPS probe for more than 2 minutes."
+
+      - alert: WebsiteSlow
+        expr: |
+          probe_success{job="blackbox-http"} == 1
+          and
+          probe_duration_seconds{job="blackbox-http"} > 5
+        for: 5m
+
+        labels:
+          severity: warning
+          category: website
+
+        annotations:
+          summary: "Website slow: {{ $labels.website }}"
+          description: "{{ $labels.website }} response time has been above 5 seconds for more than 5 minutes."
+
+
+  - name: website-ssl
+    interval: 1m
+
+    rules:
+
+      - alert: SSLCertificateExpiringSoon
+        expr: |
+          (
+            probe_ssl_earliest_cert_expiry{job="blackbox-http"} - time()
+          ) < 14 * 24 * 3600
+          and
+          probe_ssl_earliest_cert_expiry{job="blackbox-http"} > 0
+
+        for: 30m
+
+        labels:
+          severity: warning
+          category: ssl
+
+        annotations:
+          summary: "SSL certificate expiring: {{ $labels.website }}"
+          description: "SSL certificate for {{ $labels.website }} expires in less than 14 days."
+
+      - alert: SSLCertificateCritical
+        expr: |
+          (
+            probe_ssl_earliest_cert_expiry{job="blackbox-http"} - time()
+          ) < 3 * 24 * 3600
+          and
+          probe_ssl_earliest_cert_expiry{job="blackbox-http"} > 0
+
+        for: 15m
+
+        labels:
+          severity: critical
+          category: ssl
+
+        annotations:
+          summary: "SSL certificate critical: {{ $labels.website }}"
+          description: "SSL certificate for {{ $labels.website }} expires in less than 3 days."

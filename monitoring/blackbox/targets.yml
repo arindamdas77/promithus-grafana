@@ -1,0 +1,239 @@
+- targets:
+    - https://sklara-admin.maxbridgesolution.net
+  labels:
+    website: "sklara-admin.maxbridgesolution.net"
+
+- targets:
+    - https://neogi-technologies.maxbridgesolution.net
+  labels:
+    website: "neogi-technologies.maxbridgesolution.net"
+
+- targets:
+    - https://service-software.maxbridgesolution.net
+  labels:
+    website: "service-software.maxbridgesolution.net"
+
+- targets:
+    - https://retapsolutions.projectmgi.in
+  labels:
+    website: "retapsolutions.projectmgi.in"
+
+- targets:
+    - https://emcee-pharmaceutical.projectmgi.in
+  labels:
+    website: "emcee-pharmaceutical.projectmgi.in"
+
+- targets:
+    - https://maxbridge-hr.maxbridgesolution.net
+  labels:
+    website: "maxbridge-hr.maxbridgesolution.net"
+
+- targets:
+    - https://maxbridge-hr-back.maxbridgesolution.net
+  labels:
+    website: "maxbridge-hr-back.maxbridgesolution.net"
+
+- targets:
+    - https://fashionai.maxbridgesolution.in
+  labels:
+    website: "fashionai.maxbridgesolution.in"
+
+- targets:
+    - https://smart-invoice.maxbridgesolution.in
+  labels:
+    website: "smart-invoice.maxbridgesolution.in"
+
+- targets:
+    - https://aicontent-ecom.maxbridgesolution.net
+  labels:
+    website: "aicontent-ecom.maxbridgesolution.net"
+
+- targets:
+    - https://eccom.maxbridgesolution.in
+  labels:
+    website: "eccom.maxbridgesolution.in"
+
+- targets:
+    - https://pms-application.maxbridgesolution.net
+  labels:
+    website: "pms-application.maxbridgesolution.net"
+
+- targets:
+    - https://wesman-dms.maxbridgesolution.in
+  labels:
+    website: "wesman-dms.maxbridgesolution.in"
+
+- targets:
+    - https://psmp.maxbridgesolution.in
+  labels:
+    website: "psmp.maxbridgesolution.in"
+
+- targets:
+    - https://sfqm.maxbridgesolution.in
+  labels:
+    website: "sfqm.maxbridgesolution.in"
+
+- targets:
+    - https://sfqsm-new.maxbridgesolution.in
+  labels:
+    website: "sfqsm.maxbridgesolution.in"
+
+- targets:
+    - https://aicontent-admin.maxbridgesolution.net/backend/health
+  labels:
+    website: "aicontent-admin.maxbridgesolution.net/backend"
+
+- targets:
+    - https://sevashram-live.maxbridgesolution.in/school
+  labels:
+    website: "sevashram-live.maxbridgesolution.in/school"
+
+- targets:
+    - https://astrogetlab-dev.maxbridgesolution.net
+  labels:
+    website: "astrogetlab-dev.maxbridgesolution.net"
+
+- targets:
+    - https://astrogetlab-bak.maxbridgesolution.net
+  labels:
+    website: "astrogetlab-bak.maxbridgesolution.net"
+
+- targets:
+    - https://pmslead.maxbridgesolution.in/tasklyv2
+  labels:
+    website: "pmslead.maxbridgesolution.in/tasklyv2"
+
+- targets:
+    - https://caadv.maxbridgesolution.in
+  labels:
+    website: "caadv.maxbridgesolution.in"
+
+- targets:
+    - https://caadv2.maxbridgesolution.in
+  labels:
+    website: "caadv2.maxbridgesolution.in"
+
+- targets:
+    - https://dev.mbshotels.com
+  labels:
+    website: "dev.mbshotels.com"
+
+- targets:
+    - https://school-management.maxbridgesolution.net
+  labels:
+    website: "school-management.maxbridgesolution.net"
+
+- targets:
+    - https://poswork.maxbridgesolution.net
+  labels:
+    website: "poswork.maxbridgesolution.net"
+
+- targets:
+    - https://ap-test.maxbridgesolution.net
+  labels:
+    website: "ap-test.maxbridgesolution.net"
+
+- targets:
+    - https://school-frontend.maxbridgesolution.net
+  labels:
+    website: "school-frontend.maxbridgesolution.net"
+
+- targets:
+    - https://thekashyapcastle.com
+  labels:
+    website: "thekashyapcastle.com"
+
+- targets:
+    - https://dev-school-management.maxbridgesolution.net
+  labels:
+    website: "dev-school-management.maxbridgesolution.net"
+
+- targets:
+    - https://email-dashboard.maxbridgesolution.net
+  labels:
+    website: "email-dashboard.maxbridgesolution.net"
+
+- targets:
+    - https://faceattendance.maxbridgesolution.in
+  labels:
+    website: "faceattendance.maxbridgesolution.in"
+
+- targets:
+    - https://dev-peerless.maxbridgesolution.in/api
+  labels:
+    website: "dev-peerless.maxbridgesolution.in/api"
+
+- targets:
+    - https://webel-tower-1.maxbridgesolution.net
+  labels:
+    website: "webel-tower-1.maxbridgesolution.net"
+
+- targets:
+    - https://webel-tower-2.maxbridgesolution.net
+  labels:
+    website: "webel-tower-2.maxbridgesolution.net"
+
+- targets:
+    - https://www.tathagatapub.com
+  labels:
+    website: "www.tathagatapub.com"
+
+- targets:
+    - https://dhellavita.in
+  labels:
+    website: "dhellavita.in"
+
+- targets:
+    - https://prescription-management.maxbridgesolution.net
+  labels:
+    website: "prescription-management.maxbridgesolution.net"
+
+- targets:
+    - https://sklara-mvp-back.maxbridgesolution.net
+  labels:
+    website: "sklara-mvp-back.maxbridgesolution.net"
+
+- targets:
+    - https://sklara-mvp.maxbridgesolution.net
+  labels:
+    website: "sklara-mvp.maxbridgesolution.net"
+
+- targets:
+    - https://worksuite.maxbridgesolution.net
+  labels:
+    website: "worksuite.maxbridgesolution.net"
+
+- targets:
+    - https://jenkins.maxbridgesolution.net
+  labels:
+    website: "jenkins.maxbridgesolution.net"
+
+- targets:
+    - https://asansol-phed.maxbridgesolution.net
+  labels:
+    website: "asansol-phed.maxbridgesolution.net"
+
+- targets:
+    - https://schoolerp.maxbridgesolution.net
+  labels:
+    website: "schoolerp.maxbridgesolution.net"
+
+- targets:
+    - https://sevashram-live.maxbridgesolution.in
+  labels:
+    website: "sevashram-live.maxbridgesolution.in"
+
+- targets:
+    - https://ap-sjeta.maxbridgesolution.in
+  labels:
+    website: "ap-sjeta.maxbridgesolution.in"
+
+- targets:
+    - https://sevashram-dev.maxbridgesolution.in
+  labels:
+    website: "sevashram-dev.maxbridgesolution.in"
+
+- targets:
+    - https://sevashram-dev.maxbridgesolution.in/school
+  labels:
+    website: "sevashram-dev.maxbridgesolution.in/school"

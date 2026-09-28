@@ -7,6 +7,10 @@ rule_files:
 
 scrape_configs:
 
+  # =========================
+  # SERVER MONITORING
+  # =========================
+
   - job_name: "server-01"
     static_configs:
       - targets:
@@ -30,3 +34,44 @@ scrape_configs:
         labels:
           server: "Citysync"
           environment: "production"
+
+
+  # =========================
+  # WEBSITE MONITORING
+  # =========================
+
+  - job_name: "blackbox-http"
+    scrape_interval: 30s
+    scrape_timeout: 20s
+
+    metrics_path: /probe
+
+    params:
+      module:
+        - http_2xx
+
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/blackbox/targets.yml
+        refresh_interval: 1m
+
+    relabel_configs:
+
+      # Original website URL
+      - source_labels:
+          - __address__
+        target_label: __param_target
+
+      # Store website URL as instance
+      - source_labels:
+          - __param_target
+        target_label: instance
+
+      # Store website URL as target
+      - source_labels:
+          - __param_target
+        target_label: target
+
+      # Send probe request to Blackbox Exporter
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

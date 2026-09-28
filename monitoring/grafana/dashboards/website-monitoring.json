@@ -15,32 +15,80 @@
       }
     ]
   },
-  "editable": false,
+  "description": "Operator view of the 48 Blackbox HTTP probes: availability, HTTP status, response time, and SSL expiry.",
+  "editable": true,
   "graphTooltip": 1,
   "links": [],
   "panels": [
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-1" },
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "panels": [],
+      "title": "Summary",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "fixed", "fixedColor": "blue" },
-          "noValue": "0"
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 1
+      },
       "id": 1,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
       },
       "targets": [
         {
-          "expr": "count(probe_success{job=\"blackbox-http\",website=~\"${website:regex}\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "count(probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
           "refId": "A"
         }
       ],
@@ -48,34 +96,62 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-1" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "decimals": 0,
           "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 1
+      },
       "id": 2,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
       },
       "targets": [
         {
-          "expr": "sum(probe_success{job=\"blackbox-http\",website=~\"${website:regex}\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "count(probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 1) or vector(0)",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
           "refId": "A"
         }
       ],
@@ -83,34 +159,65 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-1" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
           "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 10,
+        "y": 1
+      },
       "id": 3,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
       },
       "targets": [
         {
-          "expr": "count(probe_success{job=\"blackbox-http\",website=~\"${website:regex}\"}) - sum(probe_success{job=\"blackbox-http\",website=~\"${website:regex}\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "count(probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 0) or vector(0)",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
           "refId": "A"
         }
       ],
@@ -118,98 +225,438 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-1" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
           "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 15,
+        "y": 1
+      },
       "id": 4,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
       },
       "targets": [
         {
-          "expr": "(count((probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"${website:regex}\"} - time()) < 14 * 24 * 3600 and probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"${website:regex}\"} > 0) or vector(0))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "count(probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > 5) or vector(0)",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
           "refId": "A"
         }
       ],
-      "title": "SSL Expiring in 14 Days",
+      "title": "Slow Websites",
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-1" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "0": { "color": "red", "index": 0, "text": "DOWN" },
-                "1": { "color": "green", "index": 1, "text": "UP" }
-              }
-            }
-          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 4 },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
       "id": 5,
       "options": {
-        "legend": { "displayMode": "hidden", "placement": "bottom" },
-        "mergeValues": true,
-        "showValue": "auto",
-        "tooltip": { "mode": "single", "sort": "none" }
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
       },
       "targets": [
         {
-          "expr": "probe_success{job=\"blackbox-http\",website=~\"${website:regex}\"}",
-          "legendFormat": "{{website}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "(count(((probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"^(?:${website})$\"} - time()) < 14 * 24 * 3600) and (probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > 0)) or vector(0))",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
           "refId": "A"
         }
       ],
-      "title": "Up / Down",
-      "type": "state-timeline"
+      "title": "SSL Expiring Soon",
+      "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-1" },
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 101,
+      "panels": [],
+      "title": "Availability",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "description": "Current UP and DOWN counts. This replaces the state timeline, which stayed blank: Grafana draws that panel only between value changes and disconnects the 30s probe samples, so a site that stays up or down for the whole range has no visible bar.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              }
             ]
           }
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Status" },
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "UP"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "DOWN"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 0,
+        "y": 6
+      },
+      "id": 6,
+      "options": {
+        "displayMode": "basic",
+        "maxVizHeight": 300,
+        "minVizHeight": 24,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "count(probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 1) or vector(0)",
+          "instant": true,
+          "legendFormat": "UP",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "count(probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 0) or vector(0)",
+          "instant": true,
+          "legendFormat": "DOWN",
+          "range": false,
+          "refId": "B"
+        }
+      ],
+      "title": "Website Availability Overview",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "description": "Probe duration for each website. Green under 2s, orange from 2s to 5s, red above 5s.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisColorMode": "text",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 16,
+        "x": 8,
+        "y": 6
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [
+            "last",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Last",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"}",
+          "instant": false,
+          "legendFormat": "{{website}}",
+          "range": true,
+          "refId": "A",
+          "interval": "30s"
+        }
+      ],
+      "title": "Website Response Time",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 102,
+      "panels": [],
+      "title": "Sites needing attention",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "description": "Websites whose latest Blackbox probe failed (probe_success = 0). HTTP 503, 502, 401, and 403 are the status code Blackbox received. No HTTP response means the probe got no status line (DNS, connection, or TLS); it is not labeled a timeout unless the probe runs into the 15s limit.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "No websites currently down"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Website"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 280
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
             "properties": [
               {
                 "id": "mappings",
@@ -217,194 +664,3266 @@
                   {
                     "type": "value",
                     "options": {
-                      "0": { "color": "red", "index": 0, "text": "DOWN" },
-                      "1": { "color": "green", "index": 1, "text": "UP" }
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "DOWN"
+                      },
+                      "1": {
+                        "color": "orange",
+                        "index": 1,
+                        "text": "SLOW"
+                      },
+                      "2": {
+                        "color": "green",
+                        "index": 2,
+                        "text": "UP"
+                      }
                     }
                   }
                 ]
               },
               {
                 "id": "custom.cellOptions",
-                "value": { "mode": "basic", "type": "color-background" }
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "No HTTP response"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 200
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 300
+                    },
+                    {
+                      "color": "orange",
+                      "value": 400
+                    },
+                    {
+                      "color": "red",
+                      "value": 500
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Response Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 2
+                    },
+                    {
+                      "color": "red",
+                      "value": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Certificate Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days Remaining"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "suffix:days"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": -100000,
+                      "to": 2.999999,
+                      "result": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "CRITICAL"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 3,
+                      "to": 13.999999,
+                      "result": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "Expiring soon"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 14,
+                      "to": 30,
+                      "result": {
+                        "color": "orange",
+                        "index": 3,
+                        "text": "WARNING"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 30.000001,
+                      "to": 1000000,
+                      "result": {
+                        "color": "green",
+                        "index": 4,
+                        "text": "OK"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Target"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last Check"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "custom.width",
+                "value": 160
               }
             ]
           }
         ]
       },
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 16 },
-      "id": 6,
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 8,
       "options": {
         "cellHeight": "sm",
+        "frameIndex": 0,
         "showHeader": true,
-        "sortBy": [{ "desc": false, "displayName": "Website" }]
+        "showTypeIcons": false,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Website"
+          }
+        ],
+        "frozenColumns": {
+          "left": 1
+        }
       },
       "targets": [
         {
-          "expr": "probe_success{job=\"blackbox-http\",website=~\"${website:regex}\"}",
-          "format": "table",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace((((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == bool 1) * on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > bool 5)) + on(website, instance, job, target) (((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == bool 1) * on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} <= bool 5)) * 2))) and on(website, instance, job, target) (probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 0)), \"__name__\", \"website_status\", \"website\", \".+\")",
           "instant": true,
+          "legendFormat": "",
+          "range": false,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((probe_http_status_code{job=\"blackbox-http\",website=~\"^(?:${website})$\"}) and on(website, instance, job, target) (probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 0)), \"__name__\", \"http_status\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"}) and on(website, instance, job, target) (probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 0)), \"__name__\", \"response_seconds\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace((((probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"^(?:${website})$\"} - time()) / 86400) and on(website, instance, job, target) (probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 0)), \"__name__\", \"ssl_health\", \"website\", \".+\") or label_replace((((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 0)) * 0) - 1)), \"__name__\", \"ssl_health\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((timestamp(probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"}) * 1000) and on(website, instance, job, target) (probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 0)), \"__name__\", \"last_check_ms\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "G"
         }
       ],
-      "title": "Current Status",
+      "title": "DOWN Websites",
       "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "join": [
+              "website",
+              "target"
+            ],
+            "value": "__name__"
+          }
+        },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "job": true,
               "instance": true,
-              "target": true
+              "job": true,
+              "Time": true,
+              "__name__": true
             },
-            "indexByName": { "website": 0, "Value": 1 },
-            "renameByName": { "website": "Website", "Value": "Status" }
+            "indexByName": {
+              "website": 0,
+              "website_status": 1,
+              "http_status": 2,
+              "response_seconds": 3,
+              "ssl_health": 4,
+              "target": 5,
+              "last_check_ms": 6
+            },
+            "renameByName": {
+              "website": "Website",
+              "website_status": "Status",
+              "http_status": "HTTP Status",
+              "response_seconds": "Response Time",
+              "ssl_health": "SSL",
+              "target": "Target",
+              "last_check_ms": "Last Check"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": false,
+                "field": "Website"
+              }
+            ]
           }
         }
       ],
       "type": "table"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-1" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "description": "Websites whose latest probe took longer than 5 seconds. Sorted slowest first.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
-          "decimals": 2,
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "orange", "value": 2 },
-              { "color": "red", "value": 5 }
+              {
+                "color": "text",
+                "value": null
+              }
             ]
           },
-          "unit": "s"
+          "noValue": "No slow websites"
         },
-        "overrides": []
-      },
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 28 },
-      "id": 7,
-      "options": { "cellHeight": "sm", "showHeader": true },
-      "targets": [
-        {
-          "expr": "probe_duration_seconds{job=\"blackbox-http\",website=~\"${website:regex}\"}",
-          "format": "table",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Response Time",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "job": true,
-              "instance": true,
-              "target": true
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Website"
             },
-            "indexByName": { "website": 0, "Value": 1 },
-            "renameByName": { "website": "Website", "Value": "Response Time" }
-          }
-        }
-      ],
-      "type": "table"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus-1" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "decimals": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "red", "value": null },
-              { "color": "green", "value": 200 },
-              { "color": "orange", "value": 400 },
-              { "color": "red", "value": 500 }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 28 },
-      "id": 8,
-      "options": { "cellHeight": "sm", "showHeader": true },
-      "targets": [
-        {
-          "expr": "probe_http_status_code{job=\"blackbox-http\",website=~\"${website:regex}\"}",
-          "format": "table",
-          "instant": true,
-          "refId": "A"
-        }
-      ],
-      "title": "HTTP Status",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "job": true,
-              "instance": true,
-              "target": true
-            },
-            "indexByName": { "website": 0, "Value": 1 },
-            "renameByName": { "website": "Website", "Value": "HTTP Code" }
-          }
-        }
-      ],
-      "type": "table"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus-1" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "decimals": 1,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "red", "value": null },
-              { "color": "orange", "value": 3 },
-              { "color": "yellow", "value": 14 },
-              { "color": "green", "value": 30 }
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 280
+              }
             ]
           },
-          "unit": "d"
-        },
-        "overrides": []
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "DOWN"
+                      },
+                      "1": {
+                        "color": "orange",
+                        "index": 1,
+                        "text": "SLOW"
+                      },
+                      "2": {
+                        "color": "green",
+                        "index": 2,
+                        "text": "UP"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "No HTTP response"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 200
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 300
+                    },
+                    {
+                      "color": "orange",
+                      "value": 400
+                    },
+                    {
+                      "color": "red",
+                      "value": 500
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Response Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 2
+                    },
+                    {
+                      "color": "red",
+                      "value": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Certificate Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days Remaining"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "suffix:days"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": -100000,
+                      "to": 2.999999,
+                      "result": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "CRITICAL"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 3,
+                      "to": 13.999999,
+                      "result": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "Expiring soon"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 14,
+                      "to": 30,
+                      "result": {
+                        "color": "orange",
+                        "index": 3,
+                        "text": "WARNING"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 30.000001,
+                      "to": 1000000,
+                      "result": {
+                        "color": "green",
+                        "index": 4,
+                        "text": "OK"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Target"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last Check"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          }
+        ]
       },
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 38 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
       "id": 9,
-      "options": { "cellHeight": "sm", "showHeader": true },
+      "options": {
+        "cellHeight": "sm",
+        "frameIndex": 0,
+        "showHeader": true,
+        "showTypeIcons": false,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Response Time"
+          }
+        ],
+        "frozenColumns": {
+          "left": 1
+        }
+      },
       "targets": [
         {
-          "expr": "(probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"${website:regex}\"} - time()) / 86400",
-          "format": "table",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "(label_replace((((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == bool 1) * on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > bool 5)) + on(website, instance, job, target) (((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == bool 1) * on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} <= bool 5)) * 2))) and on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > 5)), \"__name__\", \"website_status\", \"website\", \".+\")) or ((label_replace(label_replace(label_replace(vector(0), \"website\", \"No slow websites\", \"__name__\", \".*\"),\"target\", \"-\", \"__name__\", \".*\"),\"__name__\", \"website_status\", \"website\", \"No slow websites\")) unless on() (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > 5))",
           "instant": true,
+          "legendFormat": "",
+          "range": false,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "(label_replace(((probe_http_status_code{job=\"blackbox-http\",website=~\"^(?:${website})$\"}) and on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > 5)), \"__name__\", \"http_status\", \"website\", \".+\")) or ((label_replace(label_replace(label_replace(vector(0), \"website\", \"No slow websites\", \"__name__\", \".*\"),\"target\", \"-\", \"__name__\", \".*\"),\"__name__\", \"http_status\", \"website\", \"No slow websites\")) unless on() (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > 5))",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "(label_replace((probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > 5), \"__name__\", \"response_seconds\", \"website\", \".+\")) or ((label_replace(label_replace(label_replace(vector(0), \"website\", \"No slow websites\", \"__name__\", \".*\"),\"target\", \"-\", \"__name__\", \".*\"),\"__name__\", \"response_seconds\", \"website\", \"No slow websites\")) unless on() (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > 5))",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "C"
         }
       ],
-      "title": "SSL Days Remaining",
+      "title": "SLOW Websites",
       "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "join": [
+              "website",
+              "target"
+            ],
+            "value": "__name__"
+          }
+        },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "job": true,
+              "target": true,
               "instance": true,
-              "target": true
+              "job": true,
+              "Time": true,
+              "__name__": true
             },
-            "indexByName": { "website": 0, "Value": 1 },
-            "renameByName": { "website": "Website", "Value": "Days Left" }
+            "indexByName": {
+              "website": 0,
+              "response_seconds": 1,
+              "http_status": 2,
+              "website_status": 3
+            },
+            "renameByName": {
+              "website": "Website",
+              "response_seconds": "Response Time",
+              "http_status": "HTTP Status",
+              "website_status": "Status"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": true,
+                "field": "Response Time"
+              }
+            ]
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "filters": [
+              {
+                "config": {
+                  "id": "notEqual",
+                  "options": {
+                    "value": "No slow websites"
+                  }
+                },
+                "fieldName": "Website"
+              }
+            ],
+            "match": "all",
+            "type": "include"
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "id": 103,
+      "panels": [],
+      "title": "Up websites",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "description": "Websites whose latest probe succeeded. A site slower than 5 seconds is marked SLOW.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "No websites currently up"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Website"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 280
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "DOWN"
+                      },
+                      "1": {
+                        "color": "orange",
+                        "index": 1,
+                        "text": "SLOW"
+                      },
+                      "2": {
+                        "color": "green",
+                        "index": 2,
+                        "text": "UP"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "No HTTP response"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 200
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 300
+                    },
+                    {
+                      "color": "orange",
+                      "value": 400
+                    },
+                    {
+                      "color": "red",
+                      "value": 500
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Response Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 2
+                    },
+                    {
+                      "color": "red",
+                      "value": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Certificate Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days Remaining"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "suffix:days"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": -100000,
+                      "to": 2.999999,
+                      "result": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "CRITICAL"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 3,
+                      "to": 13.999999,
+                      "result": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "Expiring soon"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 14,
+                      "to": 30,
+                      "result": {
+                        "color": "orange",
+                        "index": 3,
+                        "text": "WARNING"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 30.000001,
+                      "to": 1000000,
+                      "result": {
+                        "color": "green",
+                        "index": 4,
+                        "text": "OK"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Target"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last Check"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "frameIndex": 0,
+        "showHeader": true,
+        "showTypeIcons": false,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Response Time"
+          }
+        ],
+        "frozenColumns": {
+          "left": 1
+        },
+        "enablePagination": true,
+        "pageSize": 15
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace((((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == bool 1) * on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > bool 5)) + on(website, instance, job, target) (((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == bool 1) * on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} <= bool 5)) * 2))) and on(website, instance, job, target) (probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 1)), \"__name__\", \"website_status\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((probe_http_status_code{job=\"blackbox-http\",website=~\"^(?:${website})$\"}) and on(website, instance, job, target) (probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 1)), \"__name__\", \"http_status\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"}) and on(website, instance, job, target) (probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 1)), \"__name__\", \"response_seconds\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"^(?:${website})$\"} * 1000) and on(website, instance, job, target) (probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 1)), \"__name__\", \"ssl_expiry_ms\", \"website\", \".+\") or label_replace(((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 1)) * 0)), \"__name__\", \"ssl_expiry_ms\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace((((probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"^(?:${website})$\"} - time()) / 86400) and on(website, instance, job, target) (probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 1)), \"__name__\", \"ssl_days\", \"website\", \".+\") or label_replace((((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == 1)) * 0) - 1)), \"__name__\", \"ssl_days\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "E"
+        }
+      ],
+      "title": "UP Websites",
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "join": [
+              "website",
+              "target"
+            ],
+            "value": "__name__"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "target": true,
+              "instance": true,
+              "job": true,
+              "Time": true,
+              "__name__": true
+            },
+            "indexByName": {
+              "website": 0,
+              "website_status": 1,
+              "http_status": 2,
+              "response_seconds": 3,
+              "ssl_expiry_ms": 4,
+              "ssl_days": 5
+            },
+            "renameByName": {
+              "website": "Website",
+              "website_status": "Status",
+              "http_status": "HTTP Status",
+              "response_seconds": "Response Time",
+              "ssl_expiry_ms": "SSL Expiry",
+              "ssl_days": "Days Remaining"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": true,
+                "field": "Response Time"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "id": 104,
+      "panels": [],
+      "title": "All websites",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "description": "Every probed website. DOWN is first, then SLOW, then UP.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "No website metrics"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Website"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 280
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "DOWN"
+                      },
+                      "1": {
+                        "color": "orange",
+                        "index": 1,
+                        "text": "SLOW"
+                      },
+                      "2": {
+                        "color": "green",
+                        "index": 2,
+                        "text": "UP"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "No HTTP response"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 200
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 300
+                    },
+                    {
+                      "color": "orange",
+                      "value": 400
+                    },
+                    {
+                      "color": "red",
+                      "value": 500
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Response Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 2
+                    },
+                    {
+                      "color": "red",
+                      "value": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Certificate Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days Remaining"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "suffix:days"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": -100000,
+                      "to": 2.999999,
+                      "result": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "CRITICAL"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 3,
+                      "to": 13.999999,
+                      "result": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "Expiring soon"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 14,
+                      "to": 30,
+                      "result": {
+                        "color": "orange",
+                        "index": 3,
+                        "text": "WARNING"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 30.000001,
+                      "to": 1000000,
+                      "result": {
+                        "color": "green",
+                        "index": 4,
+                        "text": "OK"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Target"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last Check"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "frameIndex": 0,
+        "showHeader": true,
+        "showTypeIcons": false,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Status"
+          }
+        ],
+        "frozenColumns": {
+          "left": 1
+        },
+        "enablePagination": true,
+        "pageSize": 16
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == bool 1) * on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > bool 5)) + on(website, instance, job, target) (((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == bool 1) * on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} <= bool 5)) * 2))), \"__name__\", \"website_status\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace((probe_http_status_code{job=\"blackbox-http\",website=~\"^(?:${website})$\"}), \"__name__\", \"http_status\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace((probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"}), \"__name__\", \"response_seconds\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace((probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"^(?:${website})$\"} * 1000), \"__name__\", \"ssl_expiry_ms\", \"website\", \".+\") or label_replace(((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} * 0)), \"__name__\", \"ssl_expiry_ms\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"^(?:${website})$\"} - time()) / 86400), \"__name__\", \"ssl_health\", \"website\", \".+\") or label_replace((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} * 0) - 1)), \"__name__\", \"ssl_health\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "F"
+        }
+      ],
+      "title": "ALL 48 Websites",
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "join": [
+              "website",
+              "target"
+            ],
+            "value": "__name__"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "target": true,
+              "instance": true,
+              "job": true,
+              "Time": true,
+              "__name__": true
+            },
+            "indexByName": {
+              "website": 0,
+              "website_status": 1,
+              "http_status": 2,
+              "response_seconds": 3,
+              "ssl_expiry_ms": 4,
+              "ssl_health": 5
+            },
+            "renameByName": {
+              "website": "Website",
+              "website_status": "Status",
+              "http_status": "HTTP Status",
+              "response_seconds": "Response Time",
+              "ssl_expiry_ms": "SSL Expiry",
+              "ssl_health": "SSL"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": false,
+                "field": "Status"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 71
+      },
+      "id": 105,
+      "panels": [],
+      "title": "HTTP status",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "description": "Actual probe_http_status_code for every website, including failed probes that still received an HTTP response.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "No HTTP status metrics"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Website"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 280
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "DOWN"
+                      },
+                      "1": {
+                        "color": "orange",
+                        "index": 1,
+                        "text": "SLOW"
+                      },
+                      "2": {
+                        "color": "green",
+                        "index": 2,
+                        "text": "UP"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "No HTTP response"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 200
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 300
+                    },
+                    {
+                      "color": "orange",
+                      "value": 400
+                    },
+                    {
+                      "color": "red",
+                      "value": 500
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Response Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 2
+                    },
+                    {
+                      "color": "red",
+                      "value": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Certificate Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days Remaining"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "suffix:days"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": -100000,
+                      "to": 2.999999,
+                      "result": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "CRITICAL"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 3,
+                      "to": 13.999999,
+                      "result": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "Expiring soon"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 14,
+                      "to": 30,
+                      "result": {
+                        "color": "orange",
+                        "index": 3,
+                        "text": "WARNING"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 30.000001,
+                      "to": 1000000,
+                      "result": {
+                        "color": "green",
+                        "index": 4,
+                        "text": "OK"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Target"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last Check"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 72
+      },
+      "id": 12,
+      "options": {
+        "cellHeight": "sm",
+        "frameIndex": 0,
+        "showHeader": true,
+        "showTypeIcons": false,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "HTTP Status"
+          }
+        ],
+        "frozenColumns": {
+          "left": 1
+        },
+        "enablePagination": true,
+        "pageSize": 16
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == bool 1) * on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} > bool 5)) + on(website, instance, job, target) (((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} == bool 1) * on(website, instance, job, target) (probe_duration_seconds{job=\"blackbox-http\",website=~\"^(?:${website})$\"} <= bool 5)) * 2))), \"__name__\", \"website_status\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace((probe_http_status_code{job=\"blackbox-http\",website=~\"^(?:${website})$\"}), \"__name__\", \"http_status\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "B"
+        }
+      ],
+      "title": "HTTP Status Code",
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "join": [
+              "website",
+              "target"
+            ],
+            "value": "__name__"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "target": true,
+              "instance": true,
+              "job": true,
+              "Time": true,
+              "__name__": true
+            },
+            "indexByName": {
+              "website": 0,
+              "http_status": 1,
+              "website_status": 2
+            },
+            "renameByName": {
+              "website": "Website",
+              "http_status": "HTTP Status",
+              "website_status": "Status"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": true,
+                "field": "HTTP Status"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 86
+      },
+      "id": 106,
+      "panels": [],
+      "title": "SSL certificates",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "description": "Certificate expiry from probe_ssl_earliest_cert_expiry. OK is more than 30 days, WARNING is 14 to 30 days, Expiring soon is 3 to 14 days, CRITICAL is under 3 days or already expired. No TLS means Blackbox did not report a certificate.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "No SSL metrics"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Website"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 280
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "DOWN"
+                      },
+                      "1": {
+                        "color": "orange",
+                        "index": 1,
+                        "text": "SLOW"
+                      },
+                      "2": {
+                        "color": "green",
+                        "index": 2,
+                        "text": "UP"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "index": 0,
+                        "text": "No HTTP response"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 200
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 300
+                    },
+                    {
+                      "color": "orange",
+                      "value": 400
+                    },
+                    {
+                      "color": "red",
+                      "value": 500
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Response Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 2
+                    },
+                    {
+                      "color": "red",
+                      "value": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Certificate Expiry"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 210
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Days Remaining"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "suffix:days"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SSL"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "-1": {
+                        "color": "text",
+                        "index": 0,
+                        "text": "No TLS"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": -100000,
+                      "to": 2.999999,
+                      "result": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "CRITICAL"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 3,
+                      "to": 13.999999,
+                      "result": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "Expiring soon"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 14,
+                      "to": 30,
+                      "result": {
+                        "color": "orange",
+                        "index": 3,
+                        "text": "WARNING"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 30.000001,
+                      "to": 1000000,
+                      "result": {
+                        "color": "green",
+                        "index": 4,
+                        "text": "OK"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Target"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 340
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last Check"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 87
+      },
+      "id": 13,
+      "options": {
+        "cellHeight": "sm",
+        "frameIndex": 0,
+        "showHeader": true,
+        "showTypeIcons": false,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Days Remaining"
+          }
+        ],
+        "frozenColumns": {
+          "left": 1
+        },
+        "enablePagination": true,
+        "pageSize": 16
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace((probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"^(?:${website})$\"} * 1000), \"__name__\", \"ssl_expiry_ms\", \"website\", \".+\") or label_replace(((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} * 0)), \"__name__\", \"ssl_expiry_ms\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"^(?:${website})$\"} - time()) / 86400), \"__name__\", \"ssl_days\", \"website\", \".+\") or label_replace((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} * 0) - 1)), \"__name__\", \"ssl_days\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "editorMode": "code",
+          "expr": "label_replace(((probe_ssl_earliest_cert_expiry{job=\"blackbox-http\",website=~\"^(?:${website})$\"} - time()) / 86400), \"__name__\", \"ssl_health\", \"website\", \".+\") or label_replace((((probe_success{job=\"blackbox-http\",website=~\"^(?:${website})$\"} * 0) - 1)), \"__name__\", \"ssl_health\", \"website\", \".+\")",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "F"
+        }
+      ],
+      "title": "SSL Certificate Expiry",
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "join": [
+              "website",
+              "target"
+            ],
+            "value": "__name__"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "target": true,
+              "instance": true,
+              "job": true,
+              "Time": true,
+              "__name__": true
+            },
+            "indexByName": {
+              "website": 0,
+              "ssl_expiry_ms": 1,
+              "ssl_days": 2,
+              "ssl_health": 3
+            },
+            "renameByName": {
+              "website": "Website",
+              "ssl_expiry_ms": "Certificate Expiry",
+              "ssl_days": "Days Remaining",
+              "ssl_health": "SSL"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": false,
+                "field": "Days Remaining"
+              }
+            ]
           }
         }
       ],
@@ -413,37 +3932,55 @@
   ],
   "refresh": "30s",
   "schemaVersion": 39,
-  "tags": ["website", "blackbox", "uptime", "ssl"],
+  "tags": [
+    "website",
+    "blackbox",
+    "uptime",
+    "ssl"
+  ],
   "templating": {
     "list": [
       {
         "allValue": ".*",
         "current": {
           "selected": true,
-          "text": ["All"],
-          "value": ["$__all"]
+          "text": "All",
+          "value": "$__all"
         },
-        "datasource": { "type": "prometheus", "uid": "prometheus-1" },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus-1"
+        },
         "definition": "label_values(probe_success{job=\"blackbox-http\"}, website)",
         "includeAll": true,
         "label": "Website",
-        "multi": true,
+        "multi": false,
         "name": "website",
-        "options": [],
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          }
+        ],
         "query": {
           "query": "label_values(probe_success{job=\"blackbox-http\"}, website)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
+        "regex": "",
         "sort": 1,
         "type": "query"
       }
     ]
   },
-  "time": { "from": "now-6h", "to": "now" },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Website Monitoring",
+  "title": "Website Monitoring - 48 Sites",
   "uid": "website-monitoring",
-  "version": 2
+  "version": 10
 }

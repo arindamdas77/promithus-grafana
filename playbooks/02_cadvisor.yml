@@ -1,0 +1,11 @@
+---
+- name: cAdvisor is not part of this stack
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+
+  tasks:
+    - name: Host metrics come from Node Exporter
+      ansible.builtin.debug:
+        msg: "cAdvisor is not deployed. CPU, memory, disk, and systemd service state come from Node Exporter on the three servers."

@@ -1,0 +1,3 @@
+---
+monitoring_server_name: "Maxbridge Development Server"
+monitoring_environment: development

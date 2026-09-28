@@ -1,9 +1,5 @@
 apiVersion: 1
 
-deleteDatasources:
-  - name: prometheus-1
-    orgId: 1
-
 datasources:
   - name: prometheus-1
     uid: prometheus-1

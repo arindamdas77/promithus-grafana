@@ -1,0 +1,19 @@
+---
+# Non-secret defaults. Credentials live in the gitignored .env file.
+monitoring_http_port: 9090
+grafana_http_port: 3012
+blackbox_http_port: 9115
+alertmanager_http_port: 9093
+loki_http_port: 3100
+
+# Server labels must stay aligned with monitoring/prometheus/prometheus.yml.
+monitoring_servers:
+  - name: "Maxbridge Development Server"
+    environment: development
+    address: "89.116.32.43:9100"
+  - name: "Dhellavita"
+    environment: production
+    address: "46.28.44.148:9100"
+  - name: "Citysync"
+    environment: production
+    address: "187.127.135.132:9100"

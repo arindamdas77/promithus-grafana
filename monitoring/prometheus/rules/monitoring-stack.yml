@@ -1,0 +1,13 @@
+groups:
+  - name: monitoring-stack
+    interval: 30s
+    rules:
+      - alert: MonitoringComponentDown
+        expr: up{job=~"prometheus|grafana|blackbox-exporter|alertmanager|loki"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: monitoring
+        annotations:
+          summary: "{{ $labels.job }} is down"
+          description: "The monitoring component {{ $labels.job }} ({{ $labels.instance }}) has been unreachable for more than 2 minutes."

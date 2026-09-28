@@ -1,0 +1,1303 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [
+    {
+      "title": "Infrastructure Overview",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/infrastructure-overview/infrastructure-overview",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Server Detail",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/server-detail/server-detail",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Website Monitoring",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/website-monitoring/website-monitoring-48-sites",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Alerts and Logs",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/alerts-logs/alerts-and-logs",
+      "keepTime": true,
+      "includeVars": true
+    }
+  ],
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "operations",
+    "alerts",
+    "logs"
+  ],
+  "timezone": "browser",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "version": 1,
+  "uid": "alerts-logs",
+  "title": "Alerts and Logs",
+  "description": "Website alerts, server alerts, then logs split by server and by log type.",
+  "templating": {
+    "list": [
+      {
+        "name": "search",
+        "label": "Search",
+        "type": "textbox",
+        "query": "",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "options": []
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Critical",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(ALERTS{alertstate=\"firing\",severity=\"critical\"}) or vector(0)",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Warning",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(ALERTS{alertstate=\"firing\",severity=\"warning\"}) or vector(0)",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Website alerts",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(ALERTS{alertstate=\"firing\",category=~\"website|ssl\"}) or vector(0)",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Server alerts",
+      "description": "Server, CPU, memory, disk, and monitoring-stack alerts.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(ALERTS{alertstate=\"firing\",category!~\"website|ssl\"}) or vector(0)",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 7,
+      "type": "text",
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Website alerts and server alerts are separate. Below that, each server has its own logs, and each service has its own panel."
+      }
+    },
+    {
+      "id": 8,
+      "type": "row",
+      "title": "ALERTS BY WEBSITE",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "panels": []
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "Website alerts",
+      "description": "One row per firing website or SSL alert.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(label_replace((label_join(ALERTS{alertstate=\"firing\",category=~\"website|ssl\"}, \"alert_key\", \"/\", \"alertname\", \"server\", \"website\", \"instance\")), \"__name__\", \"firing\", \"alertname\", \".+\")) or (label_replace(label_replace(label_replace(vector(0), \"alertname\", \"No website alerts\", \"__name__\", \".*\"), \"alert_key\", \"none\", \"__name__\", \".*\"), \"__name__\", \"firing\", \"alertname\", \"No website alerts\") unless on() (ALERTS{alertstate=\"firing\",category=~\"website|ssl\"}))",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        },
+        {
+          "refId": "B",
+          "expr": "(label_replace((label_join((ALERTS_FOR_STATE{category=~\"website|ssl\"} * 1000), \"alert_key\", \"/\", \"alertname\", \"server\", \"website\", \"instance\")), \"__name__\", \"started_ms\", \"alertname\", \".+\")) or (label_replace(label_replace(label_replace(vector(0), \"alertname\", \"No website alerts\", \"__name__\", \".*\"), \"alert_key\", \"none\", \"__name__\", \".*\"), \"__name__\", \"started_ms\", \"alertname\", \"No website alerts\") unless on() (ALERTS{alertstate=\"firing\",category=~\"website|ssl\"}))",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        },
+        {
+          "refId": "C",
+          "expr": "(label_replace((label_join((time() - ALERTS_FOR_STATE{category=~\"website|ssl\"}), \"alert_key\", \"/\", \"alertname\", \"server\", \"website\", \"instance\")), \"__name__\", \"duration_s\", \"alertname\", \".+\")) or (label_replace(label_replace(label_replace(vector(0), \"alertname\", \"No website alerts\", \"__name__\", \".*\"), \"alert_key\", \"none\", \"__name__\", \".*\"), \"__name__\", \"duration_s\", \"alertname\", \"No website alerts\") unless on() (ALERTS{alertstate=\"firing\",category=~\"website|ssl\"}))",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "join": [
+              "alert_key"
+            ],
+            "value": "__name__"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "instance": true,
+              "job": true,
+              "Time": true,
+              "__name__": true,
+              "alert_key": true,
+              "alertstate": true,
+              "category": true,
+              "target": true
+            },
+            "indexByName": {
+              "alertname": 0,
+              "severity": 1,
+              "server": 2,
+              "website": 3,
+              "started_ms": 4,
+              "duration_s": 5
+            },
+            "renameByName": {
+              "alertname": "Alert",
+              "severity": "Severity",
+              "server": "Server",
+              "website": "Website",
+              "started_ms": "Started",
+              "duration_s": "Duration"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": false,
+                "field": "Severity"
+              }
+            ]
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Severity"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "critical": {
+                        "text": "critical",
+                        "color": "red"
+                      },
+                      "warning": {
+                        "text": "warning",
+                        "color": "orange"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Started"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 190
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Alert"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 240
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "WebsiteDown": {
+                        "text": "Website is down"
+                      },
+                      "WebsiteSlow": {
+                        "text": "Website is slow"
+                      },
+                      "SSLCertificateExpiringSoon": {
+                        "text": "SSL expires within 14 days"
+                      },
+                      "SSLCertificateCritical": {
+                        "text": "SSL expires within 3 days"
+                      },
+                      "ServerDown": {
+                        "text": "Server is down"
+                      },
+                      "NodeExporterDown": {
+                        "text": "Node Exporter is down"
+                      },
+                      "HighCPU": {
+                        "text": "CPU above 80%"
+                      },
+                      "CriticalCPU": {
+                        "text": "CPU above 95%"
+                      },
+                      "HighMemory": {
+                        "text": "Memory above 80%"
+                      },
+                      "CriticalMemory": {
+                        "text": "Memory above 90%"
+                      },
+                      "HighDisk": {
+                        "text": "Disk above 80%"
+                      },
+                      "CriticalDisk": {
+                        "text": "Disk above 90%"
+                      },
+                      "HighLoad": {
+                        "text": "Load is high"
+                      },
+                      "HighSwap": {
+                        "text": "Swap above 50%"
+                      },
+                      "MonitoringComponentDown": {
+                        "text": "Monitoring component is down"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Server detail",
+                    "url": "/d/server-detail/server-detail?var-server=${__data.fields.Server}"
+                  },
+                  {
+                    "title": "Website",
+                    "url": "/d/website-monitoring/website-monitoring-48-sites?var-website=${__data.fields.Website}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        },
+        "sortBy": [
+          {
+            "displayName": "Severity",
+            "desc": false
+          }
+        ],
+        "frameIndex": 0
+      }
+    },
+    {
+      "id": 10,
+      "type": "row",
+      "title": "ALERTS BY SERVER",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "panels": []
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Server alerts",
+      "description": "Server alerts appear here. The row says so when none are firing.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(label_replace((label_join(ALERTS{alertstate=\"firing\",category!~\"website|ssl\"}, \"alert_key\", \"/\", \"alertname\", \"server\", \"website\", \"instance\")), \"__name__\", \"firing\", \"alertname\", \".+\")) or (label_replace(label_replace(label_replace(vector(0), \"alertname\", \"No server alerts\", \"__name__\", \".*\"), \"alert_key\", \"none\", \"__name__\", \".*\"), \"__name__\", \"firing\", \"alertname\", \"No server alerts\") unless on() (ALERTS{alertstate=\"firing\",category!~\"website|ssl\"}))",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        },
+        {
+          "refId": "B",
+          "expr": "(label_replace((label_join((ALERTS_FOR_STATE{category!~\"website|ssl\"} * 1000), \"alert_key\", \"/\", \"alertname\", \"server\", \"website\", \"instance\")), \"__name__\", \"started_ms\", \"alertname\", \".+\")) or (label_replace(label_replace(label_replace(vector(0), \"alertname\", \"No server alerts\", \"__name__\", \".*\"), \"alert_key\", \"none\", \"__name__\", \".*\"), \"__name__\", \"started_ms\", \"alertname\", \"No server alerts\") unless on() (ALERTS{alertstate=\"firing\",category!~\"website|ssl\"}))",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        },
+        {
+          "refId": "C",
+          "expr": "(label_replace((label_join((time() - ALERTS_FOR_STATE{category!~\"website|ssl\"}), \"alert_key\", \"/\", \"alertname\", \"server\", \"website\", \"instance\")), \"__name__\", \"duration_s\", \"alertname\", \".+\")) or (label_replace(label_replace(label_replace(vector(0), \"alertname\", \"No server alerts\", \"__name__\", \".*\"), \"alert_key\", \"none\", \"__name__\", \".*\"), \"__name__\", \"duration_s\", \"alertname\", \"No server alerts\") unless on() (ALERTS{alertstate=\"firing\",category!~\"website|ssl\"}))",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "join": [
+              "alert_key"
+            ],
+            "value": "__name__"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "instance": true,
+              "job": true,
+              "Time": true,
+              "__name__": true,
+              "alert_key": true,
+              "alertstate": true,
+              "category": true,
+              "target": true
+            },
+            "indexByName": {
+              "alertname": 0,
+              "severity": 1,
+              "server": 2,
+              "website": 3,
+              "started_ms": 4,
+              "duration_s": 5
+            },
+            "renameByName": {
+              "alertname": "Alert",
+              "severity": "Severity",
+              "server": "Server",
+              "website": "Website",
+              "started_ms": "Started",
+              "duration_s": "Duration"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": false,
+                "field": "Severity"
+              }
+            ]
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Severity"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "critical": {
+                        "text": "critical",
+                        "color": "red"
+                      },
+                      "warning": {
+                        "text": "warning",
+                        "color": "orange"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Started"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 190
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Alert"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 240
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "WebsiteDown": {
+                        "text": "Website is down"
+                      },
+                      "WebsiteSlow": {
+                        "text": "Website is slow"
+                      },
+                      "SSLCertificateExpiringSoon": {
+                        "text": "SSL expires within 14 days"
+                      },
+                      "SSLCertificateCritical": {
+                        "text": "SSL expires within 3 days"
+                      },
+                      "ServerDown": {
+                        "text": "Server is down"
+                      },
+                      "NodeExporterDown": {
+                        "text": "Node Exporter is down"
+                      },
+                      "HighCPU": {
+                        "text": "CPU above 80%"
+                      },
+                      "CriticalCPU": {
+                        "text": "CPU above 95%"
+                      },
+                      "HighMemory": {
+                        "text": "Memory above 80%"
+                      },
+                      "CriticalMemory": {
+                        "text": "Memory above 90%"
+                      },
+                      "HighDisk": {
+                        "text": "Disk above 80%"
+                      },
+                      "CriticalDisk": {
+                        "text": "Disk above 90%"
+                      },
+                      "HighLoad": {
+                        "text": "Load is high"
+                      },
+                      "HighSwap": {
+                        "text": "Swap above 50%"
+                      },
+                      "MonitoringComponentDown": {
+                        "text": "Monitoring component is down"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Server detail",
+                    "url": "/d/server-detail/server-detail?var-server=${__data.fields.Server}"
+                  },
+                  {
+                    "title": "Website",
+                    "url": "/d/website-monitoring/website-monitoring-48-sites?var-website=${__data.fields.Website}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        },
+        "sortBy": [
+          {
+            "displayName": "Severity",
+            "desc": false
+          }
+        ],
+        "frameIndex": 0
+      }
+    },
+    {
+      "id": 40,
+      "type": "row",
+      "title": "MAXBRIDGE DEVELOPMENT SERVER",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "panels": []
+    },
+    {
+      "id": 41,
+      "type": "logs",
+      "title": "Apache",
+      "description": "Maxbridge Development Server \u2014 Apache only. An empty panel means this log has no new lines.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-1"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-1"
+          },
+          "expr": "{server=~\"Maxbridge.*\", service=\"apache2\", log_type=\"file\"} |= \"$search\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 42,
+      "type": "logs",
+      "title": "MySQL",
+      "description": "Maxbridge Development Server \u2014 MySQL only. An empty panel means this log has no new lines.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-1"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-1"
+          },
+          "expr": "{server=~\"Maxbridge.*\", service=\"mysql\", log_type=\"file\"} |= \"$search\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 43,
+      "type": "logs",
+      "title": "PHP 8.2",
+      "description": "Maxbridge Development Server \u2014 PHP 8.2 only. An empty panel means this log has no new lines.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-1"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-1"
+          },
+          "expr": "{server=~\"Maxbridge.*\", service=\"php8.2-fpm\", log_type=\"file\"} |= \"$search\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 44,
+      "type": "logs",
+      "title": "PHP 8.3",
+      "description": "Maxbridge Development Server \u2014 PHP 8.3 only. An empty panel means this log has no new lines.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-1"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-1"
+          },
+          "expr": "{server=~\"Maxbridge.*\", service=\"php8.3-fpm\", log_type=\"file\"} |= \"$search\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 45,
+      "type": "logs",
+      "title": "PHP 8.4",
+      "description": "Maxbridge Development Server \u2014 PHP 8.4 only. An empty panel means this log has no new lines.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-1"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 56
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-1"
+          },
+          "expr": "{server=~\"Maxbridge.*\", service=\"php8.4-fpm\", log_type=\"file\"} |= \"$search\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 46,
+      "type": "row",
+      "title": "DHELLAVITA",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "panels": []
+    },
+    {
+      "id": 47,
+      "type": "logs",
+      "title": "Apache",
+      "description": "Dhellavita \u2014 Apache only. An empty panel means this log has no new lines.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-1"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 64
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-1"
+          },
+          "expr": "{server=~\"Dhellavita\", service=\"apache2\", log_type=\"file\"} |= \"$search\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 48,
+      "type": "logs",
+      "title": "PHP 8.2",
+      "description": "Dhellavita \u2014 PHP 8.2 only. An empty panel means this log has no new lines.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-1"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 71
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-1"
+          },
+          "expr": "{server=~\"Dhellavita\", service=\"php8.2-fpm\", log_type=\"file\"} |= \"$search\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 49,
+      "type": "row",
+      "title": "CITYSYNC",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 78
+      },
+      "panels": []
+    },
+    {
+      "id": 50,
+      "type": "logs",
+      "title": "Nginx",
+      "description": "Citysync \u2014 Nginx only. An empty panel means this log has no new lines.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-1"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 79
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-1"
+          },
+          "expr": "{server=~\"Citysync\", service=\"nginx\", log_type=\"file\"} |= \"$search\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    }
+  ]
+}

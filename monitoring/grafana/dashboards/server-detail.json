@@ -1,0 +1,1140 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [
+    {
+      "title": "Infrastructure Overview",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/infrastructure-overview/infrastructure-overview",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Server Detail",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/server-detail/server-detail",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Website Monitoring",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/website-monitoring/website-monitoring-48-sites",
+      "keepTime": true,
+      "includeVars": true
+    },
+    {
+      "title": "Alerts and Logs",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/alerts-logs/alerts-and-logs",
+      "keepTime": true,
+      "includeVars": true
+    }
+  ],
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "operations",
+    "servers"
+  ],
+  "timezone": "browser",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "version": 1,
+  "uid": "server-detail",
+  "title": "Server Detail",
+  "description": "One server at a time. Select All to compare the three servers.",
+  "templating": {
+    "list": [
+      {
+        "name": "server",
+        "label": "Server",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus-1"
+        },
+        "definition": "label_values(up{job=~\"server-0[123]\"}, server)",
+        "query": {
+          "query": "label_values(up{job=~\"server-0[123]\"}, server)",
+          "refId": "StandardVariableQuery"
+        },
+        "includeAll": true,
+        "allValue": ".+",
+        "multi": false,
+        "refresh": 1,
+        "sort": 1,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          }
+        ],
+        "regex": "",
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Status",
+      "description": "Filtered by the server variable.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace((max by (server, environment) (up{job=~\"server-0[123]\",server=~\"^(?:${server})$\"})), \"__name__\", \"up_status\", \"server\", \".+\")",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "0",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red",
+                  "index": 0
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green",
+                  "index": 1
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "CPU",
+      "description": "Filtered by the server variable.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace((avg by (server, environment) (100 - (rate(node_cpu_seconds_total{mode=\"idle\",job=~\"server-0[123]\",server=~\"^(?:${server})$\"}[5m]) * 100))), \"__name__\", \"cpu_pct\", \"server\", \".+\")",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "0",
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Memory",
+      "description": "Filtered by the server variable.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace((max by (server, environment) ((1 - (node_memory_MemAvailable_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"} / node_memory_MemTotal_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"})) * 100)), \"__name__\", \"mem_pct\", \"server\", \".+\")",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "0",
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Swap",
+      "description": "Filtered by the server variable.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace((max by (server, environment) ((\n  (\n    (\n      (node_memory_SwapTotal_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"} - node_memory_SwapFree_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"})\n      / node_memory_SwapTotal_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"}\n    ) * 100\n  )\n  and on(server, environment, instance, job)\n  (node_memory_SwapTotal_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"} > 0)\n)\nor\n(\n  (node_memory_SwapTotal_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"} == bool 0) * 0\n))), \"__name__\", \"swap_pct\", \"server\", \".+\")",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "0",
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Disk",
+      "description": "Filtered by the server variable.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 15,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace((max by (server, environment) (100 * (1 - (node_filesystem_avail_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\",job=~\"server-0[123]\",server=~\"^(?:${server})$\"} / node_filesystem_size_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\",job=~\"server-0[123]\",server=~\"^(?:${server})$\"})))), \"__name__\", \"disk_pct\", \"server\", \".+\")",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "0",
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Load",
+      "description": "Filtered by the server variable.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace((max by (server, environment) (node_load1{job=~\"server-0[123]\",server=~\"^(?:${server})$\"})), \"__name__\", \"load1\", \"server\", \".+\")",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "0",
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Uptime",
+      "description": "Filtered by the server variable.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 21,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace((max by (server, environment) (time() - node_boot_time_seconds{job=~\"server-0[123]\",server=~\"^(?:${server})$\"})), \"__name__\", \"uptime_s\", \"server\", \".+\")",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "0",
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 8,
+      "type": "row",
+      "title": "TIME SERIES",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "panels": []
+    },
+    {
+      "id": 20,
+      "type": "timeseries",
+      "title": "CPU",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg by (server) (100 - (rate(node_cpu_seconds_total{mode=\"idle\",job=~\"server-0[123]\",server=~\"^(?:${server})$\"}[5m]) * 100))",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": "{{server}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "Memory",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by (server) ((1 - (node_memory_MemAvailable_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"} / node_memory_MemTotal_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"})) * 100)",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": "{{server}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 22,
+      "type": "timeseries",
+      "title": "Swap",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by (server) (max by (server, environment) ((\n  (\n    (\n      (node_memory_SwapTotal_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"} - node_memory_SwapFree_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"})\n      / node_memory_SwapTotal_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"}\n    ) * 100\n  )\n  and on(server, environment, instance, job)\n  (node_memory_SwapTotal_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"} > 0)\n)\nor\n(\n  (node_memory_SwapTotal_bytes{job=~\"server-0[123]\",server=~\"^(?:${server})$\"} == bool 0) * 0\n)))",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": "{{server}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 23,
+      "type": "timeseries",
+      "title": "Disk",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by (server) (100 * (1 - (node_filesystem_avail_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\",job=~\"server-0[123]\",server=~\"^(?:${server})$\"} / node_filesystem_size_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\",job=~\"server-0[123]\",server=~\"^(?:${server})$\"})))",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": "{{server}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 24,
+      "type": "timeseries",
+      "title": "Load",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by (server) (node_load1{job=~\"server-0[123]\",server=~\"^(?:${server})$\"})",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": "{{server}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 25,
+      "type": "timeseries",
+      "title": "Network Receive",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (server) (rate(node_network_receive_bytes_total{device!~\"lo|veth.*|docker.*|br-.*\",job=~\"server-0[123]\",server=~\"^(?:${server})$\"}[5m]))",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": "{{server}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "decimals": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 26,
+      "type": "timeseries",
+      "title": "Network Transmit",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 29
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (server) (rate(node_network_transmit_bytes_total{device!~\"lo|veth.*|docker.*|br-.*\",job=~\"server-0[123]\",server=~\"^(?:${server})$\"}[5m]))",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": "{{server}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "decimals": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 30,
+      "type": "row",
+      "title": "SERVICES ON THIS SERVER",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "panels": []
+    },
+    {
+      "id": 31,
+      "type": "table",
+      "title": "Service Status",
+      "description": "Services Node Exporter actually reports on these hosts.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace(label_replace((max by (server, name) (\n  (node_systemd_unit_state{name=~\"apache2.service|nginx.service|mysql.service|php8.2-fpm.service|php8.3-fpm.service|php8.4-fpm.service|docker.service|postgresql.service\",server=~\"^(?:${server})$\", state=\"active\"} == 1) * 2\n  or\n  (node_systemd_unit_state{name=~\"apache2.service|nginx.service|mysql.service|php8.2-fpm.service|php8.3-fpm.service|php8.4-fpm.service|docker.service|postgresql.service\",server=~\"^(?:${server})$\", state=\"failed\"} == 1) * 1\n  or\n  (node_systemd_unit_state{name=~\"apache2.service|nginx.service|mysql.service|php8.2-fpm.service|php8.3-fpm.service|php8.4-fpm.service|docker.service|postgresql.service\",server=~\"^(?:${server})$\", state=\"inactive\"} == 1) * 0\n)), \"__name__\", \"unit_state\", \"name\", \".+\"), \"service\", \"$1\", \"name\", \"(.*)\\\\.service\")",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "join": [
+              "server",
+              "service"
+            ],
+            "value": "__name__"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "instance": true,
+              "job": true,
+              "Time": true,
+              "__name__": true,
+              "name": true,
+              "state": true,
+              "type": true
+            },
+            "indexByName": {
+              "service": 0,
+              "server": 1,
+              "unit_state": 2
+            },
+            "renameByName": {
+              "service": "Service",
+              "server": "Server",
+              "unit_state": "Status"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": false,
+                "field": "Server"
+              }
+            ]
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "INACTIVE",
+                        "color": "orange",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "FAILED",
+                        "color": "red",
+                        "index": 1
+                      },
+                      "2": {
+                        "text": "RUNNING",
+                        "color": "green",
+                        "index": 2
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        },
+        "sortBy": [
+          {
+            "displayName": "Server",
+            "desc": false
+          }
+        ],
+        "frameIndex": 0
+      }
+    },
+    {
+      "id": 32,
+      "type": "text",
+      "title": "Next step",
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "If a service is FAILED or a resource is high, open **Alerts and Logs** and filter the same server."
+      }
+    }
+  ]
+}

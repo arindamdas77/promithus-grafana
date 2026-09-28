@@ -1,5 +1,5 @@
 ---
-- name: Deploy Prometheus
+- name: Deploy the existing monitoring stack
   hosts: localhost
   connection: local
   become: false
@@ -8,10 +8,14 @@
   vars:
     monitoring_dir: "{{ playbook_dir }}/../monitoring"
     repo_env: "{{ playbook_dir }}/../.env"
-    compose_services:
-      - prometheus
-      - blackbox-exporter
+    compose_services: "{{ stack_services | default([]) }}"
     compose_cmd: "{{ ['docker', 'compose', '--env-file', repo_env] if (lookup('ansible.builtin.file', repo_env, errors='ignore') | length) > 0 else ['docker', 'compose'] }}"
 
   tasks:
+    - name: Refuse destructive volume deletion
+      ansible.builtin.assert:
+        that:
+          - "'down' not in compose_services"
+        fail_msg: "This playbook must not run docker compose down."
+
     - ansible.builtin.include_tasks: tasks/compose_up.yml

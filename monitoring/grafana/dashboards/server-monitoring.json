@@ -9,6 +9,40 @@
     "prometheus"
   ],
   "timezone": "browser",
+  "links": [
+    {
+      "title": "Infrastructure Overview",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/infrastructure-overview/infrastructure-overview",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "title": "Server Detail",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/server-detail/server-detail",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "title": "Website Monitoring",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/website-monitoring/website-monitoring-48-sites",
+      "keepTime": true,
+      "includeVars": false
+    },
+    {
+      "title": "Alerts and Logs",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/alerts-logs/alerts-and-logs",
+      "keepTime": true,
+      "includeVars": false
+    }
+  ],
   "schemaVersion": 39,
   "version": 1,
   "refresh": "10s",
@@ -38,7 +72,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "up",
+          "expr": "up{job=~\"server-0[123]\"}",
           "legendFormat": "{{server}}",
           "instant": true,
           "range": false

@@ -1,0 +1,39 @@
+---
+- name: Confirm compose file exists
+  ansible.builtin.stat:
+    path: "{{ monitoring_dir }}/docker-compose.yml"
+  register: compose_file
+
+- name: Require the monitoring compose file
+  ansible.builtin.assert:
+    that:
+      - compose_file.stat.exists
+    fail_msg: "monitoring/docker-compose.yml is missing."
+
+- name: Check for the gitignored env file
+  ansible.builtin.stat:
+    path: "{{ repo_env }}"
+  register: env_file
+
+- name: Validate the compose file
+  ansible.builtin.command:
+    argv: "{{ compose_cmd + ['config'] }}"
+  args:
+    chdir: "{{ monitoring_dir }}"
+  changed_when: false
+  environment:
+    HOME: "{{ ansible_env.HOME | default('/home/arindam2') }}"
+
+- name: Start monitoring services without deleting volumes
+  ansible.builtin.command:
+    argv: "{{ compose_cmd + ['up', '-d'] + compose_services }}"
+  args:
+    chdir: "{{ monitoring_dir }}"
+  register: compose_up
+  changed_when: compose_up.stderr is search('Started|Created|Recreated|Running')
+  environment:
+    HOME: "{{ ansible_env.HOME | default('/home/arindam2') }}"
+
+- name: Show compose result
+  ansible.builtin.debug:
+    msg: "{{ compose_up.stderr_lines | default([]) }}"

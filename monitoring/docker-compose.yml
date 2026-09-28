@@ -37,6 +37,93 @@ services:
     command:
       - "--config.file=/config/blackbox.yml"
 
+  alertmanager-render:
+    image: alpine:3.20
+    container_name: alertmanager-render
+    restart: "no"
+    env_file:
+      - path: ../.env
+        required: false
+    environment:
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_TO: ${SMTP_TO:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_REQUIRE_TLS: ${SMTP_REQUIRE_TLS:-true}
+      SMS_WEBHOOK_URL: ${SMS_WEBHOOK_URL:-}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+    volumes:
+      - ./alertmanager/render.sh:/render.sh:ro
+      - alertmanager_config:/out
+    entrypoint: ["/bin/sh", "/render.sh"]
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - alertmanager_config:/etc/alertmanager:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+    depends_on:
+      alertmanager-render:
+        condition: service_completed_successfully
+
+  loki:
+    image: grafana/loki:3.3.2
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3100:3100"
+    volumes:
+      - ./loki/loki.yml:/etc/loki/loki.yml:ro
+      - loki_data:/loki
+    command:
+      - "-config.file=/etc/loki/loki.yml"
+
+  alloy:
+    image: grafana/alloy:v1.8.2
+    container_name: alloy
+    restart: unless-stopped
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - alloy_data:/var/lib/alloy
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - "run"
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "--storage.path=/var/lib/alloy"
+      - "/etc/alloy/config.alloy"
+    depends_on:
+      - loki
+
+  log-shipper:
+    image: alpine:3.20
+    container_name: log-shipper
+    restart: unless-stopped
+    environment:
+      LOKI_URL: http://loki:3100/loki/api/v1/push
+    volumes:
+      - ../scripts/ship-remote-logs.sh:/ship.sh:ro
+      - ${HOME}/.ssh:/root/.ssh:ro
+      - log_shipper_state:/state
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        apk add --no-cache openssh-client curl jq >/dev/null
+        while true; do
+          /bin/sh /ship.sh || echo "log ship cycle failed"
+          sleep 60
+        done
+    depends_on:
+      - loki
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -45,6 +132,9 @@ services:
     ports:
       - "3012:3000"
 
+    environment:
+      GF_METRICS_ENABLED: "true"
+
     volumes:
       # Grafana database, plugins, users, etc.
       - grafana_data:/var/lib/grafana
@@ -52,7 +142,7 @@ services:
       # Grafana provisioning configuration
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
 
-      # Grafana dashboards managed by Ansible
+      # Grafana dashboards managed from this repository
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
 
     depends_on:
@@ -62,3 +152,8 @@ services:
 volumes:
   prometheus_data:
   grafana_data:
+  alertmanager_data:
+  alertmanager_config:
+  loki_data:
+  alloy_data:
+  log_shipper_state:

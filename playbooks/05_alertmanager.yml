@@ -1,0 +1,17 @@
+---
+- name: Deploy Alertmanager
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: true
+
+  vars:
+    monitoring_dir: "{{ playbook_dir }}/../monitoring"
+    repo_env: "{{ playbook_dir }}/../.env"
+    compose_services:
+      - alertmanager-render
+      - alertmanager
+    compose_cmd: "{{ ['docker', 'compose', '--env-file', repo_env] if (lookup('ansible.builtin.file', repo_env, errors='ignore') | length) > 0 else ['docker', 'compose'] }}"
+
+  tasks:
+    - ansible.builtin.include_tasks: tasks/compose_up.yml

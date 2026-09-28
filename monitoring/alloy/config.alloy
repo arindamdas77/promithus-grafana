@@ -1,0 +1,55 @@
+// Local collector for the monitoring containers on this host.
+// Remote Linux servers ship journal entries through scripts/ship-remote-logs.sh
+// because this host is not reachable inbound from those servers.
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "keep" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(prometheus|grafana|loki|blackbox-exporter|alertmanager|alloy)"
+    action        = "keep"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "service"
+  }
+
+  rule {
+    target_label = "server"
+    replacement  = "monitoring-host"
+  }
+
+  rule {
+    target_label = "environment"
+    replacement  = "monitoring"
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "docker"
+  }
+
+  rule {
+    target_label = "log_type"
+    replacement  = "container"
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.keep.output
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

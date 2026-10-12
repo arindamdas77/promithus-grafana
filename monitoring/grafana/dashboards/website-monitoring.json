@@ -7,40 +7,107 @@
   "graphTooltip": 1,
   "links": [
     {
-      "title": "Infrastructure Overview",
+      "title": "Home",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/server-monitoring/server-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Overview",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/infrastructure-overview/infrastructure-overview",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
     },
     {
-      "title": "Server Detail",
+      "title": "Server details",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/server-detail/server-detail",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
     },
     {
-      "title": "Website Monitoring",
+      "title": "Docker",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/docker-monitoring/docker-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Database",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/database-monitoring/database-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Network",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/network-monitoring/network-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Websites",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/website-monitoring/website-monitoring-48-sites",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
     },
     {
-      "title": "Alerts and Logs",
+      "title": "Alerts",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/alerts-logs/alerts-and-logs",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Backups",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/backup-monitoring/backup-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Stack health",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/monitoring-health/monitoring-system-health",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Theme",
+      "type": "link",
+      "icon": "external link",
+      "url": "http://127.0.0.1:3013/",
+      "keepTime": false,
+      "includeVars": false,
+      "targetBlank": true,
+      "tooltip": "Open the theme studio"
     }
   ],
-  "schemaVersion": 39,
-  "style": "dark",
+  "schemaVersion": 42,
   "tags": [
     "blackbox",
     "ssl",
@@ -56,7 +123,7 @@
   "version": 1,
   "uid": "website-monitoring",
   "title": "Website Monitoring - 48 Sites",
-  "description": "Read top to bottom: how many are down, why, then timing and certificates.",
+  "description": "Read top to bottom: how many are down, why, then timing and certificates. Visual theme: Sunset Orange.",
   "templating": {
     "list": [
       {
@@ -104,7 +171,7 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 5,
         "x": 0,
         "y": 0
@@ -133,7 +200,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#fb923c",
                 "value": null
               }
             ]
@@ -152,9 +219,12 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
@@ -167,7 +237,7 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 5,
         "x": 5,
         "y": 0
@@ -196,11 +266,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": null
               },
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": 1
               }
             ]
@@ -219,9 +289,16 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
@@ -234,7 +311,7 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 5,
         "x": 10,
         "y": 0
@@ -263,11 +340,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 1
               }
             ]
@@ -286,9 +363,16 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
@@ -301,7 +385,7 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 4,
         "x": 15,
         "y": 0
@@ -330,11 +414,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 1
               }
             ]
@@ -353,9 +437,16 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
@@ -368,7 +459,7 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 5,
         "x": 19,
         "y": 0
@@ -397,11 +488,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 1
               }
             ]
@@ -420,19 +511,26 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
       "id": 30,
       "type": "text",
       "gridPos": {
-        "h": 3,
+        "h": 2,
         "w": 24,
         "x": 0,
-        "y": 4
+        "y": 5
       },
       "options": {
         "mode": "markdown",
@@ -589,7 +687,8 @@
                     "options": {
                       "-1": {
                         "text": "No certificate",
-                        "color": "red",
+                        "color": "#dc2626",
+                        "icon": "times-circle",
                         "index": 0
                       }
                     }
@@ -601,7 +700,8 @@
                       "to": 3,
                       "result": {
                         "text": "Critical",
-                        "color": "red"
+                        "color": "#dc2626",
+                        "icon": "exclamation-circle"
                       }
                     }
                   },
@@ -612,7 +712,8 @@
                       "to": 14,
                       "result": {
                         "text": "Expiring",
-                        "color": "orange"
+                        "color": "#d97706",
+                        "icon": "exclamation-triangle"
                       }
                     }
                   },
@@ -623,7 +724,8 @@
                       "to": 10000,
                       "result": {
                         "text": "OK",
-                        "color": "green"
+                        "color": "#16a34a",
+                        "icon": "check-circle"
                       }
                     }
                   }
@@ -660,7 +762,8 @@
                     "options": {
                       "0": {
                         "text": "No certificate",
-                        "color": "red",
+                        "color": "#dc2626",
+                        "icon": "times-circle",
                         "index": 0
                       }
                     }
@@ -673,6 +776,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -849,18 +953,21 @@
                     "options": {
                       "0": {
                         "text": "DOWN",
-                        "color": "red",
-                        "index": 0
+                        "color": "#dc2626",
+                        "index": 0,
+                        "icon": "times-circle"
                       },
                       "1": {
                         "text": "SLOW",
-                        "color": "orange",
-                        "index": 1
+                        "color": "#d97706",
+                        "index": 1,
+                        "icon": "exclamation-triangle"
                       },
                       "2": {
                         "text": "UP",
-                        "color": "green",
-                        "index": 2
+                        "color": "#16a34a",
+                        "index": 2,
+                        "icon": "check-circle"
                       }
                     }
                   }
@@ -897,72 +1004,72 @@
                     "options": {
                       "0": {
                         "text": "No HTTP response",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 0
                       },
                       "200": {
                         "text": "OK",
-                        "color": "green",
+                        "color": "#16a34a",
                         "index": 1
                       },
                       "201": {
                         "text": "Created",
-                        "color": "green",
+                        "color": "#16a34a",
                         "index": 2
                       },
                       "204": {
                         "text": "No content",
-                        "color": "green",
+                        "color": "#16a34a",
                         "index": 3
                       },
                       "301": {
                         "text": "Redirect",
-                        "color": "blue",
+                        "color": "#fb923c",
                         "index": 4
                       },
                       "302": {
                         "text": "Redirect",
-                        "color": "blue",
+                        "color": "#fb923c",
                         "index": 5
                       },
                       "400": {
                         "text": "Bad request",
-                        "color": "orange",
+                        "color": "#d97706",
                         "index": 6
                       },
                       "401": {
                         "text": "Unauthorized",
-                        "color": "orange",
+                        "color": "#d97706",
                         "index": 7
                       },
                       "403": {
                         "text": "Forbidden",
-                        "color": "orange",
+                        "color": "#d97706",
                         "index": 8
                       },
                       "404": {
                         "text": "Not found",
-                        "color": "yellow",
+                        "color": "#d97706",
                         "index": 9
                       },
                       "500": {
                         "text": "Server error",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 10
                       },
                       "502": {
                         "text": "Bad gateway",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 11
                       },
                       "503": {
                         "text": "Unavailable",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 12
                       },
                       "504": {
                         "text": "Gateway timeout",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 13
                       }
                     }
@@ -1013,23 +1120,23 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": null
                     },
                     {
-                      "color": "green",
+                      "color": "#16a34a",
                       "value": 200
                     },
                     {
-                      "color": "blue",
+                      "color": "#fb923c",
                       "value": 300
                     },
                     {
-                      "color": "orange",
+                      "color": "#d97706",
                       "value": 400
                     },
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": 500
                     }
                   ]
@@ -1079,7 +1186,8 @@
                     "options": {
                       "-1": {
                         "text": "No certificate",
-                        "color": "red",
+                        "color": "#dc2626",
+                        "icon": "times-circle",
                         "index": 0
                       }
                     }
@@ -1091,7 +1199,8 @@
                       "to": 3,
                       "result": {
                         "text": "Critical",
-                        "color": "red"
+                        "color": "#dc2626",
+                        "icon": "exclamation-circle"
                       }
                     }
                   },
@@ -1102,7 +1211,8 @@
                       "to": 14,
                       "result": {
                         "text": "Expiring",
-                        "color": "orange"
+                        "color": "#d97706",
+                        "icon": "exclamation-triangle"
                       }
                     }
                   },
@@ -1113,7 +1223,8 @@
                       "to": 10000,
                       "result": {
                         "text": "OK",
-                        "color": "green"
+                        "color": "#16a34a",
+                        "icon": "check-circle"
                       }
                     }
                   }
@@ -1132,6 +1243,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -1292,18 +1404,21 @@
                     "options": {
                       "0": {
                         "text": "DOWN",
-                        "color": "red",
-                        "index": 0
+                        "color": "#dc2626",
+                        "index": 0,
+                        "icon": "times-circle"
                       },
                       "1": {
                         "text": "SLOW",
-                        "color": "orange",
-                        "index": 1
+                        "color": "#d97706",
+                        "index": 1,
+                        "icon": "exclamation-triangle"
                       },
                       "2": {
                         "text": "UP",
-                        "color": "green",
-                        "index": 2
+                        "color": "#16a34a",
+                        "index": 2,
+                        "icon": "check-circle"
                       }
                     }
                   }
@@ -1340,72 +1455,72 @@
                     "options": {
                       "0": {
                         "text": "No HTTP response",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 0
                       },
                       "200": {
                         "text": "OK",
-                        "color": "green",
+                        "color": "#16a34a",
                         "index": 1
                       },
                       "201": {
                         "text": "Created",
-                        "color": "green",
+                        "color": "#16a34a",
                         "index": 2
                       },
                       "204": {
                         "text": "No content",
-                        "color": "green",
+                        "color": "#16a34a",
                         "index": 3
                       },
                       "301": {
                         "text": "Redirect",
-                        "color": "blue",
+                        "color": "#fb923c",
                         "index": 4
                       },
                       "302": {
                         "text": "Redirect",
-                        "color": "blue",
+                        "color": "#fb923c",
                         "index": 5
                       },
                       "400": {
                         "text": "Bad request",
-                        "color": "orange",
+                        "color": "#d97706",
                         "index": 6
                       },
                       "401": {
                         "text": "Unauthorized",
-                        "color": "orange",
+                        "color": "#d97706",
                         "index": 7
                       },
                       "403": {
                         "text": "Forbidden",
-                        "color": "orange",
+                        "color": "#d97706",
                         "index": 8
                       },
                       "404": {
                         "text": "Not found",
-                        "color": "yellow",
+                        "color": "#d97706",
                         "index": 9
                       },
                       "500": {
                         "text": "Server error",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 10
                       },
                       "502": {
                         "text": "Bad gateway",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 11
                       },
                       "503": {
                         "text": "Unavailable",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 12
                       },
                       "504": {
                         "text": "Gateway timeout",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 13
                       }
                     }
@@ -1456,23 +1571,23 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": null
                     },
                     {
-                      "color": "green",
+                      "color": "#16a34a",
                       "value": 200
                     },
                     {
-                      "color": "blue",
+                      "color": "#fb923c",
                       "value": 300
                     },
                     {
-                      "color": "orange",
+                      "color": "#d97706",
                       "value": 400
                     },
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": 500
                     }
                   ]
@@ -1504,6 +1619,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -1678,18 +1794,21 @@
                     "options": {
                       "0": {
                         "text": "DOWN",
-                        "color": "red",
-                        "index": 0
+                        "color": "#dc2626",
+                        "index": 0,
+                        "icon": "times-circle"
                       },
                       "1": {
                         "text": "SLOW",
-                        "color": "orange",
-                        "index": 1
+                        "color": "#d97706",
+                        "index": 1,
+                        "icon": "exclamation-triangle"
                       },
                       "2": {
                         "text": "UP",
-                        "color": "green",
-                        "index": 2
+                        "color": "#16a34a",
+                        "index": 2,
+                        "icon": "check-circle"
                       }
                     }
                   }
@@ -1726,72 +1845,72 @@
                     "options": {
                       "0": {
                         "text": "No HTTP response",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 0
                       },
                       "200": {
                         "text": "OK",
-                        "color": "green",
+                        "color": "#16a34a",
                         "index": 1
                       },
                       "201": {
                         "text": "Created",
-                        "color": "green",
+                        "color": "#16a34a",
                         "index": 2
                       },
                       "204": {
                         "text": "No content",
-                        "color": "green",
+                        "color": "#16a34a",
                         "index": 3
                       },
                       "301": {
                         "text": "Redirect",
-                        "color": "blue",
+                        "color": "#fb923c",
                         "index": 4
                       },
                       "302": {
                         "text": "Redirect",
-                        "color": "blue",
+                        "color": "#fb923c",
                         "index": 5
                       },
                       "400": {
                         "text": "Bad request",
-                        "color": "orange",
+                        "color": "#d97706",
                         "index": 6
                       },
                       "401": {
                         "text": "Unauthorized",
-                        "color": "orange",
+                        "color": "#d97706",
                         "index": 7
                       },
                       "403": {
                         "text": "Forbidden",
-                        "color": "orange",
+                        "color": "#d97706",
                         "index": 8
                       },
                       "404": {
                         "text": "Not found",
-                        "color": "yellow",
+                        "color": "#d97706",
                         "index": 9
                       },
                       "500": {
                         "text": "Server error",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 10
                       },
                       "502": {
                         "text": "Bad gateway",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 11
                       },
                       "503": {
                         "text": "Unavailable",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 12
                       },
                       "504": {
                         "text": "Gateway timeout",
-                        "color": "red",
+                        "color": "#dc2626",
                         "index": 13
                       }
                     }
@@ -1842,23 +1961,23 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": null
                     },
                     {
-                      "color": "green",
+                      "color": "#16a34a",
                       "value": 200
                     },
                     {
-                      "color": "blue",
+                      "color": "#fb923c",
                       "value": 300
                     },
                     {
-                      "color": "orange",
+                      "color": "#d97706",
                       "value": 400
                     },
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": 500
                     }
                   ]
@@ -1908,7 +2027,8 @@
                     "options": {
                       "-1": {
                         "text": "No certificate",
-                        "color": "red",
+                        "color": "#dc2626",
+                        "icon": "times-circle",
                         "index": 0
                       }
                     }
@@ -1920,7 +2040,8 @@
                       "to": 3,
                       "result": {
                         "text": "Critical",
-                        "color": "red"
+                        "color": "#dc2626",
+                        "icon": "exclamation-circle"
                       }
                     }
                   },
@@ -1931,7 +2052,8 @@
                       "to": 14,
                       "result": {
                         "text": "Expiring",
-                        "color": "orange"
+                        "color": "#d97706",
+                        "icon": "exclamation-triangle"
                       }
                     }
                   },
@@ -1942,7 +2064,8 @@
                       "to": 10000,
                       "result": {
                         "text": "OK",
-                        "color": "green"
+                        "color": "#16a34a",
+                        "icon": "check-circle"
                       }
                     }
                   }
@@ -1961,6 +2084,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,

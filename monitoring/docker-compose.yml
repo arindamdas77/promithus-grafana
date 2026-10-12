@@ -149,6 +149,30 @@ services:
       - prometheus
       - blackbox-exporter
 
+  # Optional. Start with: docker compose up -d --no-deps theme-studio
+  # Published on localhost only. The process binds every interface inside the
+  # container, so THEME_STUDIO_TOKEN in ../.env is required or the process exits.
+  theme-studio:
+    image: alpine:3.20
+    container_name: theme-studio
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3013:3013"
+    env_file:
+      - path: ../.env
+        required: false
+    environment:
+      THEME_STUDIO_BIND: 0.0.0.0
+      THEME_STUDIO_PORT: "3013"
+    working_dir: /repo
+    volumes:
+      - ../:/repo
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        apk add --no-cache python3 >/dev/null
+        exec python3 /repo/scripts/theme_server.py
+
 volumes:
   prometheus_data:
   grafana_data:

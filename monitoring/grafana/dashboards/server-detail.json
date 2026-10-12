@@ -7,40 +7,107 @@
   "graphTooltip": 1,
   "links": [
     {
-      "title": "Infrastructure Overview",
+      "title": "Home",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/server-monitoring/server-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Overview",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/infrastructure-overview/infrastructure-overview",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
     },
     {
-      "title": "Server Detail",
+      "title": "Server details",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/server-detail/server-detail",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
     },
     {
-      "title": "Website Monitoring",
+      "title": "Docker",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/docker-monitoring/docker-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Database",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/database-monitoring/database-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Network",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/network-monitoring/network-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Websites",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/website-monitoring/website-monitoring-48-sites",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
     },
     {
-      "title": "Alerts and Logs",
+      "title": "Alerts",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/alerts-logs/alerts-and-logs",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Backups",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/backup-monitoring/backup-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Stack health",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/monitoring-health/monitoring-system-health",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Theme",
+      "type": "link",
+      "icon": "external link",
+      "url": "http://127.0.0.1:3013/",
+      "keepTime": false,
+      "includeVars": false,
+      "targetBlank": true,
+      "tooltip": "Open the theme studio"
     }
   ],
-  "schemaVersion": 39,
-  "style": "dark",
+  "schemaVersion": 42,
   "tags": [
     "operations",
     "servers"
@@ -54,7 +121,7 @@
   "version": 1,
   "uid": "server-detail",
   "title": "Server Detail",
-  "description": "One server, or all three. Gauges turn orange at 80% and red at 90%.",
+  "description": "One server, or all of them. Gauges turn amber at 80% and red at 90%. Visual theme: Sunset Orange.",
   "templating": {
     "list": [
       {
@@ -150,15 +217,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 80
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 90
               }
             ]
@@ -177,7 +244,22 @@
         "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
-        "sizing": "auto"
+        "sizing": "auto",
+        "shape": "gauge",
+        "barShape": "rounded",
+        "barWidthFactor": 0.4,
+        "sparkline": false,
+        "textMode": "value",
+        "endpointMarker": "point",
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "text": {
+          "titleSize": 14,
+          "valueSize": 22
+        }
       }
     },
     {
@@ -223,15 +305,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 80
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 90
               }
             ]
@@ -250,7 +332,22 @@
         "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
-        "sizing": "auto"
+        "sizing": "auto",
+        "shape": "gauge",
+        "barShape": "rounded",
+        "barWidthFactor": 0.4,
+        "sparkline": false,
+        "textMode": "value",
+        "endpointMarker": "point",
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "text": {
+          "titleSize": 14,
+          "valueSize": 22
+        }
       }
     },
     {
@@ -296,15 +393,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 80
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 90
               }
             ]
@@ -323,7 +420,22 @@
         "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
-        "sizing": "auto"
+        "sizing": "auto",
+        "shape": "gauge",
+        "barShape": "rounded",
+        "barWidthFactor": 0.4,
+        "sparkline": false,
+        "textMode": "value",
+        "endpointMarker": "point",
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "text": {
+          "titleSize": 14,
+          "valueSize": 22
+        }
       }
     },
     {
@@ -369,15 +481,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 50
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 80
               }
             ]
@@ -396,7 +508,22 @@
         "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
-        "sizing": "auto"
+        "sizing": "auto",
+        "shape": "gauge",
+        "barShape": "rounded",
+        "barWidthFactor": 0.4,
+        "sparkline": false,
+        "textMode": "value",
+        "endpointMarker": "point",
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "text": {
+          "titleSize": 14,
+          "valueSize": 22
+        }
       }
     },
     {
@@ -438,7 +565,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#fb923c",
                 "value": null
               }
             ]
@@ -450,28 +577,33 @@
               "options": {
                 "0": {
                   "text": "Offline",
-                  "color": "red",
-                  "index": 0
+                  "color": "#64748b",
+                  "index": 0,
+                  "icon": "power"
                 },
                 "1": {
                   "text": "Critical",
-                  "color": "red",
-                  "index": 1
+                  "color": "#dc2626",
+                  "index": 1,
+                  "icon": "exclamation-circle"
                 },
                 "2": {
                   "text": "Warning",
-                  "color": "orange",
-                  "index": 2
+                  "color": "#d97706",
+                  "index": 2,
+                  "icon": "exclamation-triangle"
                 },
                 "3": {
                   "text": "Healthy",
-                  "color": "green",
-                  "index": 3
+                  "color": "#16a34a",
+                  "index": 3,
+                  "icon": "check-circle"
                 },
                 "4": {
                   "text": "No Data",
-                  "color": "blue",
-                  "index": 4
+                  "color": "#94a3b8",
+                  "index": 4,
+                  "icon": "question-circle"
                 }
               }
             }
@@ -489,9 +621,12 @@
         },
         "orientation": "auto",
         "textMode": "value_and_name",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
@@ -533,7 +668,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#fb923c",
                 "value": null
               }
             ]
@@ -553,9 +688,12 @@
         },
         "orientation": "auto",
         "textMode": "value_and_name",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
@@ -597,7 +735,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#fb923c",
                 "value": null
               }
             ]
@@ -617,9 +755,12 @@
         },
         "orientation": "auto",
         "textMode": "value_and_name",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
@@ -661,7 +802,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#fb923c",
                 "value": null
               }
             ]
@@ -680,9 +821,12 @@
         },
         "orientation": "auto",
         "textMode": "value_and_name",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
@@ -724,7 +868,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#fb923c",
                 "value": null
               }
             ]
@@ -744,9 +888,12 @@
         },
         "orientation": "auto",
         "textMode": "value_and_name",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
@@ -788,7 +935,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#fb923c",
                 "value": null
               }
             ]
@@ -807,15 +954,18 @@
         },
         "orientation": "auto",
         "textMode": "value_and_name",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
       "id": 12,
       "type": "row",
-      "title": "IDENTITY",
+      "title": "Identity",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -1004,6 +1154,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -1025,7 +1176,7 @@
     {
       "id": 14,
       "type": "row",
-      "title": "MEMORY",
+      "title": "Memory",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -1260,15 +1411,15 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green",
+                      "color": "#16a34a",
                       "value": null
                     },
                     {
-                      "color": "orange",
+                      "color": "#d97706",
                       "value": 80
                     },
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": 90
                     }
                   ]
@@ -1280,6 +1431,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -1301,7 +1453,7 @@
     {
       "id": 16,
       "type": "row",
-      "title": "DISK SPACE",
+      "title": "Disk space",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -1569,15 +1721,15 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green",
+                      "color": "#16a34a",
                       "value": null
                     },
                     {
-                      "color": "orange",
+                      "color": "#d97706",
                       "value": 80
                     },
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": 90
                     }
                   ]
@@ -1633,7 +1785,7 @@
                       "to": 2000000,
                       "result": {
                         "text": "Stable",
-                        "color": "green"
+                        "color": "#16a34a"
                       }
                     }
                   }
@@ -1645,15 +1797,15 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": null
                     },
                     {
-                      "color": "orange",
+                      "color": "#d97706",
                       "value": 14
                     },
                     {
-                      "color": "green",
+                      "color": "#16a34a",
                       "value": 30
                     }
                   ]
@@ -1678,6 +1830,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -1699,7 +1852,7 @@
     {
       "id": 18,
       "type": "row",
-      "title": "WHAT NEEDS ATTENTION",
+      "title": "What needs attention",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -1748,11 +1901,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 1
               }
             ]
@@ -1771,9 +1924,16 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
@@ -1923,6 +2083,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -2155,11 +2316,15 @@
                     "options": {
                       "critical": {
                         "text": "Critical",
-                        "color": "red"
+                        "color": "#dc2626",
+                        "index": 0,
+                        "icon": "exclamation-circle"
                       },
                       "warning": {
                         "text": "Warning",
-                        "color": "orange"
+                        "color": "#d97706",
+                        "index": 1,
+                        "icon": "exclamation-triangle"
                       }
                     }
                   }
@@ -2222,6 +2387,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -2263,7 +2429,7 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
         "y": 58
@@ -2288,13 +2454,21 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
+            "pointSize": 5,
             "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto",
             "thresholdsStyle": {
               "mode": "dashed"
             }
+          },
+          "color": {
+            "mode": "thresholds"
           },
           "min": 0,
           "max": 100,
@@ -2302,15 +2476,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 80
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 90
               }
             ]
@@ -2320,9 +2494,12 @@
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2340,7 +2517,7 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 12,
         "y": 58
@@ -2365,13 +2542,21 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
+            "pointSize": 5,
             "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto",
             "thresholdsStyle": {
               "mode": "dashed"
             }
+          },
+          "color": {
+            "mode": "thresholds"
           },
           "min": 0,
           "max": 100,
@@ -2379,15 +2564,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 80
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 90
               }
             ]
@@ -2397,9 +2582,12 @@
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2417,10 +2605,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
-        "y": 66
+        "y": 67
       },
       "targets": [
         {
@@ -2442,13 +2630,21 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
+            "pointSize": 5,
             "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto",
             "thresholdsStyle": {
               "mode": "dashed"
             }
+          },
+          "color": {
+            "mode": "thresholds"
           },
           "min": 0,
           "max": 100,
@@ -2456,15 +2652,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 80
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 90
               }
             ]
@@ -2474,9 +2670,12 @@
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2494,10 +2693,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 12,
-        "y": 66
+        "y": 67
       },
       "targets": [
         {
@@ -2519,13 +2718,21 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
+            "pointSize": 5,
             "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto",
             "thresholdsStyle": {
               "mode": "dashed"
             }
+          },
+          "color": {
+            "mode": "thresholds"
           },
           "min": 0,
           "max": 100,
@@ -2533,15 +2740,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 50
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 80
               }
             ]
@@ -2551,9 +2758,12 @@
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2571,10 +2781,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
-        "y": 74
+        "y": 76
       },
       "targets": [
         {
@@ -2596,19 +2806,76 @@
           "decimals": 2,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
-            "spanNulls": false
+            "pointSize": 5,
+            "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto"
+          },
+          "color": {
+            "mode": "palette-classic"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Maxbridge Development Server"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fb923c"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dhellavita"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fbbf24"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Citysync"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fdba74"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2626,10 +2893,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 12,
-        "y": 74
+        "y": 76
       },
       "targets": [
         {
@@ -2651,19 +2918,76 @@
           "decimals": 2,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
-            "spanNulls": false
+            "pointSize": 5,
+            "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto"
+          },
+          "color": {
+            "mode": "palette-classic"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Maxbridge Development Server"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fb923c"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dhellavita"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fbbf24"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Citysync"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fdba74"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2681,10 +3005,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
-        "y": 82
+        "y": 85
       },
       "targets": [
         {
@@ -2706,19 +3030,76 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
-            "spanNulls": false
+            "pointSize": 5,
+            "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto"
+          },
+          "color": {
+            "mode": "palette-classic"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Maxbridge Development Server"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fb923c"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dhellavita"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fbbf24"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Citysync"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fdba74"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2736,10 +3117,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 12,
-        "y": 82
+        "y": 85
       },
       "targets": [
         {
@@ -2761,19 +3142,76 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
-            "spanNulls": false
+            "pointSize": 5,
+            "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto"
+          },
+          "color": {
+            "mode": "palette-classic"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Maxbridge Development Server"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fb923c"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dhellavita"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fbbf24"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Citysync"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fdba74"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2791,10 +3229,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
-        "y": 90
+        "y": 94
       },
       "targets": [
         {
@@ -2816,19 +3254,76 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
-            "spanNulls": false
+            "pointSize": 5,
+            "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto"
+          },
+          "color": {
+            "mode": "palette-classic"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Maxbridge Development Server"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fb923c"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dhellavita"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fbbf24"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Citysync"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fdba74"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2846,10 +3341,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 12,
-        "y": 90
+        "y": 94
       },
       "targets": [
         {
@@ -2871,19 +3366,76 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
-            "spanNulls": false
+            "pointSize": 5,
+            "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto"
+          },
+          "color": {
+            "mode": "palette-classic"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Maxbridge Development Server"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fb923c"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dhellavita"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fbbf24"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Citysync"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fdba74"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2901,10 +3453,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
-        "y": 98
+        "y": 103
       },
       "targets": [
         {
@@ -2926,13 +3478,21 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
+            "pointSize": 5,
             "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto",
             "thresholdsStyle": {
               "mode": "dashed"
             }
+          },
+          "color": {
+            "mode": "thresholds"
           },
           "min": 0,
           "max": 100,
@@ -2940,15 +3500,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 80
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 90
               }
             ]
@@ -2958,9 +3518,12 @@
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -2978,10 +3541,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 12,
-        "y": 98
+        "y": 103
       },
       "targets": [
         {
@@ -3003,19 +3566,76 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
-            "spanNulls": false
+            "pointSize": 5,
+            "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto"
+          },
+          "color": {
+            "mode": "palette-classic"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Maxbridge Development Server"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fb923c"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dhellavita"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fbbf24"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Citysync"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fdba74"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -3033,10 +3653,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
-        "y": 106
+        "y": 112
       },
       "targets": [
         {
@@ -3058,19 +3678,76 @@
           "decimals": 1,
           "custom": {
             "drawStyle": "line",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
             "showPoints": "never",
-            "spanNulls": false
+            "pointSize": 5,
+            "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto"
+          },
+          "color": {
+            "mode": "palette-classic"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Maxbridge Development Server"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fb923c"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dhellavita"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fbbf24"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Citysync"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fdba74"
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
-          "calcs": []
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
@@ -3080,19 +3757,131 @@
     },
     {
       "id": 43,
+      "type": "timeseries",
+      "title": "Uptime",
+      "description": "Time since the last boot. A drop to the bottom is a reboot.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 112
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max by (server) (time() - node_boot_time_seconds{job=~\"server-0[123]\",server=~\"^(?:${server})$\"})",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": "{{server}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 16,
+            "gradientMode": "opacity",
+            "showPoints": "never",
+            "pointSize": 5,
+            "spanNulls": false,
+            "axisSoftMin": 0,
+            "axisPlacement": "auto"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Maxbridge Development Server"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fb923c"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Dhellavita"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fbbf24"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Citysync"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#fdba74"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 44,
       "type": "row",
-      "title": "SERVICES",
+      "title": "Services",
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 114
+        "y": 121
       },
       "panels": []
     },
     {
-      "id": 44,
+      "id": 45,
       "type": "table",
       "title": "Service status",
       "description": "Installed services only. A missing product is not listed and is not treated as healthy or failed. Docker shows whether the Docker service is running. Per-container CPU, memory, and restarts are not collected.",
@@ -3104,7 +3893,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 115
+        "y": 122
       },
       "targets": [
         {
@@ -3188,18 +3977,21 @@
                     "options": {
                       "0": {
                         "text": "Stopped",
-                        "color": "orange",
-                        "index": 0
+                        "color": "#d97706",
+                        "index": 0,
+                        "icon": "pause-circle"
                       },
                       "1": {
                         "text": "Failed",
-                        "color": "red",
-                        "index": 1
+                        "color": "#dc2626",
+                        "index": 1,
+                        "icon": "times-circle"
                       },
                       "2": {
                         "text": "Running",
-                        "color": "green",
-                        "index": 2
+                        "color": "#16a34a",
+                        "index": 2,
+                        "icon": "check-circle"
                       }
                     }
                   }
@@ -3296,6 +4088,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -3315,20 +4108,20 @@
       }
     },
     {
-      "id": 45,
+      "id": 46,
       "type": "row",
-      "title": "PROCESSES",
+      "title": "Processes",
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 125
+        "y": 132
       },
       "panels": []
     },
     {
-      "id": 46,
+      "id": 47,
       "type": "stat",
       "title": "Running",
       "description": "Programs actively using a CPU at the last sample.",
@@ -3340,7 +4133,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 126
+        "y": 133
       },
       "targets": [
         {
@@ -3366,7 +4159,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#fb923c",
                 "value": null
               }
             ]
@@ -3385,13 +4178,16 @@
         },
         "orientation": "auto",
         "textMode": "value_and_name",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
-      "id": 47,
+      "id": 48,
       "type": "stat",
       "title": "Waiting on disk",
       "description": "Programs stuck in uninterruptible disk wait. A few can be normal during writes. Five or more is a problem.",
@@ -3403,7 +4199,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 126
+        "y": 133
       },
       "targets": [
         {
@@ -3429,11 +4225,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 5
               }
             ]
@@ -3452,13 +4248,16 @@
         },
         "orientation": "auto",
         "textMode": "value_and_name",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
-      "id": 48,
+      "id": 49,
       "type": "stat",
       "title": "Zombies",
       "description": "Finished programs whose parent has not collected them. One is usually harmless. Ten or more means an application is leaking child processes.",
@@ -3470,7 +4269,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 126
+        "y": 133
       },
       "targets": [
         {
@@ -3496,11 +4295,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 10
               }
             ]
@@ -3519,19 +4318,22 @@
         },
         "orientation": "auto",
         "textMode": "value_and_name",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
-      "id": 49,
+      "id": 50,
       "type": "text",
       "gridPos": {
         "h": 3,
         "w": 24,
         "x": 0,
-        "y": 130
+        "y": 137
       },
       "options": {
         "mode": "markdown",

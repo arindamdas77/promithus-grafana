@@ -1,0 +1,405 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [
+    {
+      "title": "Home",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/server-monitoring/server-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Overview",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/infrastructure-overview/infrastructure-overview",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Server details",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/server-detail/server-detail",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Docker",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/docker-monitoring/docker-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Database",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/database-monitoring/database-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Network",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/network-monitoring/network-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Websites",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/website-monitoring/website-monitoring-48-sites",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Alerts",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/alerts-logs/alerts-and-logs",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Backups",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/backup-monitoring/backup-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Stack health",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/monitoring-health/monitoring-system-health",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Theme",
+      "type": "link",
+      "icon": "external link",
+      "url": "http://127.0.0.1:3013/",
+      "keepTime": false,
+      "includeVars": false,
+      "targetBlank": true,
+      "tooltip": "Open the theme studio"
+    }
+  ],
+  "schemaVersion": 42,
+  "tags": [
+    "operations",
+    "database"
+  ],
+  "timezone": "browser",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "version": 1,
+  "uid": "database-monitoring",
+  "title": "Database Monitoring",
+  "description": "Shows whether database services are running. Query and connection metrics are not collected. Visual theme: Sunset Orange.",
+  "templating": {
+    "list": [
+      {
+        "name": "server",
+        "label": "Server",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus-1"
+        },
+        "definition": "label_values(up{job=~\"server-0[123]\"}, server)",
+        "query": {
+          "query": "label_values(up{job=~\"server-0[123]\"}, server)",
+          "refId": "StandardVariableQuery"
+        },
+        "includeAll": true,
+        "allValue": ".+",
+        "multi": false,
+        "refresh": 1,
+        "sort": 1,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          }
+        ],
+        "regex": "",
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "This page shows MySQL, MariaDB, PostgreSQL, and Redis only when those systemd units are installed. A missing product is not listed and is not treated as failed. **Needs a database exporter** for connections, queries per second, replication, and slow queries. Those metrics are not in this stack."
+      }
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "Database services",
+      "description": "Installed services only. A missing product is not listed and is not treated as healthy or failed. Docker shows whether the Docker service is running. Per-container CPU, memory, and restarts are not collected.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace(label_replace((max by (server, name) (\n  (node_systemd_unit_state{job=~\"server-0[123]\",server=~\"^(?:${server})$\",name=~\"mysql.service|mariadb.service|postgresql@16-main.service|redis.service|redis-server.service\", state=\"active\"} == 1) * 2\n  or\n  (node_systemd_unit_state{job=~\"server-0[123]\",server=~\"^(?:${server})$\",name=~\"mysql.service|mariadb.service|postgresql@16-main.service|redis.service|redis-server.service\", state=\"failed\"} == 1) * 1\n  or\n  (node_systemd_unit_state{job=~\"server-0[123]\",server=~\"^(?:${server})$\",name=~\"mysql.service|mariadb.service|postgresql@16-main.service|redis.service|redis-server.service\", state=\"inactive\"} == 1) * 0\n)), \"__name__\", \"unit_state\", \"name\", \".+\"), \"service\", \"$1\", \"name\", \"(.*)\\\\.service\")",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "join": [
+              "server",
+              "service"
+            ],
+            "value": "__name__"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "instance": true,
+              "job": true,
+              "Time": true,
+              "__name__": true,
+              "name": true,
+              "state": true,
+              "type": true
+            },
+            "indexByName": {
+              "service": 0,
+              "server": 1,
+              "unit_state": 2
+            },
+            "renameByName": {
+              "service": "Service",
+              "server": "Server",
+              "unit_state": "Status"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "desc": false,
+                "field": "Server"
+              }
+            ]
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "Stopped",
+                        "color": "#d97706",
+                        "index": 0,
+                        "icon": "pause-circle"
+                      },
+                      "1": {
+                        "text": "Failed",
+                        "color": "#dc2626",
+                        "index": 1,
+                        "icon": "times-circle"
+                      },
+                      "2": {
+                        "text": "Running",
+                        "color": "#16a34a",
+                        "index": 2,
+                        "icon": "check-circle"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Service"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "apache2": {
+                        "text": "Apache",
+                        "index": 0
+                      },
+                      "nginx": {
+                        "text": "Nginx",
+                        "index": 1
+                      },
+                      "mysql": {
+                        "text": "MySQL",
+                        "index": 2
+                      },
+                      "mariadb": {
+                        "text": "MariaDB",
+                        "index": 3
+                      },
+                      "postgresql@16-main": {
+                        "text": "PostgreSQL",
+                        "index": 4
+                      },
+                      "php8.2-fpm": {
+                        "text": "PHP 8.2",
+                        "index": 5
+                      },
+                      "php8.3-fpm": {
+                        "text": "PHP 8.3",
+                        "index": 6
+                      },
+                      "php8.4-fpm": {
+                        "text": "PHP 8.4",
+                        "index": 7
+                      },
+                      "docker": {
+                        "text": "Docker",
+                        "index": 8
+                      },
+                      "redis": {
+                        "text": "Redis",
+                        "index": 9
+                      },
+                      "redis-server": {
+                        "text": "Redis",
+                        "index": 10
+                      },
+                      "ssh": {
+                        "text": "SSH",
+                        "index": 11
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "showTypeIcons": false,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ],
+          "countRows": false,
+          "fields": ""
+        },
+        "sortBy": [
+          {
+            "displayName": "Server",
+            "desc": false
+          }
+        ],
+        "frameIndex": 0
+      }
+    }
+  ]
+}

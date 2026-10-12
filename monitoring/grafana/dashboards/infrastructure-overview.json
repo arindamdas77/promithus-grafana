@@ -7,40 +7,107 @@
   "graphTooltip": 1,
   "links": [
     {
-      "title": "Infrastructure Overview",
+      "title": "Home",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/server-monitoring/server-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Overview",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/infrastructure-overview/infrastructure-overview",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
     },
     {
-      "title": "Server Detail",
+      "title": "Server details",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/server-detail/server-detail",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
     },
     {
-      "title": "Website Monitoring",
+      "title": "Docker",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/docker-monitoring/docker-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Database",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/database-monitoring/database-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Network",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/network-monitoring/network-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Websites",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/website-monitoring/website-monitoring-48-sites",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
     },
     {
-      "title": "Alerts and Logs",
+      "title": "Alerts",
       "type": "link",
       "icon": "dashboard",
       "url": "/d/alerts-logs/alerts-and-logs",
       "keepTime": true,
-      "includeVars": true
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Backups",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/backup-monitoring/backup-monitoring",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Stack health",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/monitoring-health/monitoring-system-health",
+      "keepTime": true,
+      "includeVars": true,
+      "targetBlank": false
+    },
+    {
+      "title": "Theme",
+      "type": "link",
+      "icon": "external link",
+      "url": "http://127.0.0.1:3013/",
+      "keepTime": false,
+      "includeVars": false,
+      "targetBlank": true,
+      "tooltip": "Open the theme studio"
     }
   ],
-  "schemaVersion": 39,
-  "style": "dark",
+  "schemaVersion": 42,
   "tags": [
     "operations",
     "overview"
@@ -54,7 +121,7 @@
   "version": 1,
   "uid": "infrastructure-overview",
   "title": "Infrastructure Overview",
-  "description": "Start here. Green is healthy, orange needs attention, red is critical or offline.",
+  "description": "Healthy is green, warning is amber, critical is red, and offline is gray. Visual theme: Sunset Orange.",
   "templating": {
     "list": []
   },
@@ -63,30 +130,30 @@
       "id": 1,
       "type": "text",
       "gridPos": {
-        "h": 3,
+        "h": 2,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "options": {
         "mode": "markdown",
-        "content": "Green is healthy. Orange needs a look. Red means a resource is nearly full, a service has failed, or the server is offline. Open a server name for memory, disk, network, and what to check next. Container CPU and memory are not on this dashboard because cAdvisor is not installed."
+        "content": "Healthy is green. Warning is amber. Critical is red. Offline is gray, and missing metrics are a lighter neutral. Open a server name for memory, disk, network, and the next check. Container CPU and memory need cAdvisor. That gap is explained on Docker."
       }
     },
     {
       "id": 2,
       "type": "stat",
       "title": "Servers",
-      "description": "Servers Prometheus is configured to scrape.",
+      "description": "Hosts Prometheus is configured to scrape.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
-        "w": 4,
+        "h": 5,
+        "w": 6,
         "x": 0,
-        "y": 3
+        "y": 2
       },
       "targets": [
         {
@@ -112,7 +179,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#fb923c",
                 "value": null
               }
             ]
@@ -131,9 +198,12 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
@@ -146,10 +216,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 3
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 2
       },
       "targets": [
         {
@@ -175,11 +245,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": null
               },
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": 1
               }
             ]
@@ -198,25 +268,32 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
       "id": 4,
       "type": "stat",
-      "title": "Warnings",
+      "title": "Warning",
       "description": "At least one resource is above its warning line.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 3
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 2
       },
       "targets": [
         {
@@ -242,11 +319,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 1
               }
             ]
@@ -265,9 +342,16 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
@@ -280,10 +364,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 3
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 2
       },
       "targets": [
         {
@@ -309,11 +393,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 1
               }
             ]
@@ -332,9 +416,16 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
@@ -347,10 +438,10 @@
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 16,
-        "y": 3
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 7
       },
       "targets": [
         {
@@ -376,11 +467,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "red",
+                "color": "#64748b",
                 "value": 1
               }
             ]
@@ -399,25 +490,32 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
       "id": 7,
       "type": "stat",
-      "title": "No Data",
+      "title": "No data",
       "description": "The exporter answered, but CPU metrics are missing.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus-1"
       },
       "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 3
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 7
       },
       "targets": [
         {
@@ -443,11 +541,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#94a3b8",
                 "value": 1
               }
             ]
@@ -466,13 +564,175 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
       "id": 8,
+      "type": "stat",
+      "title": "Active alerts",
+      "description": "Firing alerts for servers, websites, and the monitoring stack.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 7
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(ALERTS{alertstate=\"firing\"}) or vector(0)",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#16a34a",
+                "value": null
+              },
+              {
+                "color": "#dc2626",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "Website availability",
+      "description": "Share of probed sites that answered.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-1"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 7
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(100 * count(probe_success{job=\"blackbox-http\"} == 1) / count(probe_success{job=\"blackbox-http\"})) or vector(0)",
+          "instant": true,
+          "range": false,
+          "editorMode": "code",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-1"
+          },
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#dc2626",
+                "value": null
+              },
+              {
+                "color": "#d97706",
+                "value": 95
+              },
+              {
+                "color": "#16a34a",
+                "value": 99
+              }
+            ]
+          },
+          "noValue": "0",
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
+      }
+    },
+    {
+      "id": 10,
       "type": "stat",
       "title": "Websites",
       "description": "Sites checked by Blackbox.",
@@ -484,7 +744,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 7
+        "y": 12
       },
       "targets": [
         {
@@ -510,7 +770,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#fb923c",
                 "value": null
               }
             ]
@@ -529,13 +789,16 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard"
       }
     },
     {
-      "id": 9,
+      "id": 11,
       "type": "stat",
       "title": "Websites up",
       "description": "",
@@ -547,7 +810,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 7
+        "y": 12
       },
       "targets": [
         {
@@ -573,11 +836,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": null
               },
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": 1
               }
             ]
@@ -596,13 +859,20 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
-      "id": 10,
+      "id": 12,
       "type": "stat",
       "title": "Websites down",
       "description": "",
@@ -614,7 +884,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 7
+        "y": 12
       },
       "targets": [
         {
@@ -640,11 +910,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 1
               }
             ]
@@ -663,13 +933,20 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
-      "id": 11,
+      "id": 13,
       "type": "stat",
       "title": "Critical alerts",
       "description": "Firing critical alerts for servers and websites.",
@@ -681,7 +958,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 7
+        "y": 12
       },
       "targets": [
         {
@@ -707,11 +984,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "red",
+                "color": "#dc2626",
                 "value": 1
               }
             ]
@@ -730,16 +1007,23 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
-      "id": 12,
+      "id": 14,
       "type": "stat",
       "title": "Warning alerts",
-      "description": "Firing warning alerts. Open Alerts and Logs for how long each one has lasted.",
+      "description": "Firing warning alerts. Open Alerts for how long each one has lasted.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus-1"
@@ -748,7 +1032,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 7
+        "y": 12
       },
       "targets": [
         {
@@ -774,11 +1058,11 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#16a34a",
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "#d97706",
                 "value": 1
               }
             ]
@@ -797,26 +1081,33 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
-      "id": 13,
+      "id": 15,
       "type": "row",
-      "title": "SERVERS",
+      "title": "Servers",
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 16
       },
       "panels": []
     },
     {
-      "id": 14,
+      "id": 16,
       "type": "table",
       "title": "Server health",
       "description": "One row per server. Health is Healthy when CPU, memory, and disk are under 80%, swap is under 50%, and load is within CPU capacity. Warning means one of those is high. Critical means a resource is over 90% or a service has failed. Offline means Node Exporter cannot be scraped. Disk is the fullest data filesystem, excluding the small EFI partition. Open a server name for detail.",
@@ -828,7 +1119,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 17
       },
       "targets": [
         {
@@ -1041,28 +1332,33 @@
                     "options": {
                       "0": {
                         "text": "Offline",
-                        "color": "red",
-                        "index": 0
+                        "color": "#64748b",
+                        "index": 0,
+                        "icon": "power"
                       },
                       "1": {
                         "text": "Critical",
-                        "color": "red",
-                        "index": 1
+                        "color": "#dc2626",
+                        "index": 1,
+                        "icon": "exclamation-circle"
                       },
                       "2": {
                         "text": "Warning",
-                        "color": "orange",
-                        "index": 2
+                        "color": "#d97706",
+                        "index": 2,
+                        "icon": "exclamation-triangle"
                       },
                       "3": {
                         "text": "Healthy",
-                        "color": "green",
-                        "index": 3
+                        "color": "#16a34a",
+                        "index": 3,
+                        "icon": "check-circle"
                       },
                       "4": {
                         "text": "No Data",
-                        "color": "blue",
-                        "index": 4
+                        "color": "#94a3b8",
+                        "index": 4,
+                        "icon": "question-circle"
                       }
                     }
                   }
@@ -1130,15 +1426,15 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green",
+                      "color": "#16a34a",
                       "value": null
                     },
                     {
-                      "color": "orange",
+                      "color": "#d97706",
                       "value": 80
                     },
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": 90
                     }
                   ]
@@ -1191,15 +1487,15 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green",
+                      "color": "#16a34a",
                       "value": null
                     },
                     {
-                      "color": "orange",
+                      "color": "#d97706",
                       "value": 80
                     },
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": 90
                     }
                   ]
@@ -1252,15 +1548,15 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "green",
+                      "color": "#16a34a",
                       "value": null
                     },
                     {
-                      "color": "orange",
+                      "color": "#d97706",
                       "value": 80
                     },
                     {
-                      "color": "red",
+                      "color": "#dc2626",
                       "value": 90
                     }
                   ]
@@ -1402,6 +1698,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -1421,20 +1718,20 @@
       }
     },
     {
-      "id": 15,
+      "id": 17,
       "type": "row",
-      "title": "WHAT NEEDS ATTENTION",
+      "title": "What needs attention",
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 25
       },
       "panels": []
     },
     {
-      "id": 16,
+      "id": 18,
       "type": "table",
       "title": "Current problems",
       "description": "A row appears only when a live check is outside its limit. Reading is the current measurement: a percent for CPU, memory, disk, and swap; a ratio for load; a count for services and processes; errors per second for the network; days for a disk that is filling. An empty table means none of these checks are failing.",
@@ -1446,7 +1743,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 26
       },
       "targets": [
         {
@@ -1566,6 +1863,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -1585,20 +1883,20 @@
       }
     },
     {
-      "id": 17,
+      "id": 19,
       "type": "row",
-      "title": "SERVICES",
+      "title": "Services",
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 34
       },
       "panels": []
     },
     {
-      "id": 18,
+      "id": 20,
       "type": "table",
       "title": "Service status",
       "description": "Installed services only. A missing product is not listed and is not treated as healthy or failed. Docker shows whether the Docker service is running. Per-container CPU, memory, and restarts are not collected.",
@@ -1610,7 +1908,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 35
       },
       "targets": [
         {
@@ -1694,18 +1992,21 @@
                     "options": {
                       "0": {
                         "text": "Stopped",
-                        "color": "orange",
-                        "index": 0
+                        "color": "#d97706",
+                        "index": 0,
+                        "icon": "pause-circle"
                       },
                       "1": {
                         "text": "Failed",
-                        "color": "red",
-                        "index": 1
+                        "color": "#dc2626",
+                        "index": 1,
+                        "icon": "times-circle"
                       },
                       "2": {
                         "text": "Running",
-                        "color": "green",
-                        "index": 2
+                        "color": "#16a34a",
+                        "index": 2,
+                        "icon": "check-circle"
                       }
                     }
                   }
@@ -1802,6 +2103,7 @@
       },
       "options": {
         "showHeader": true,
+        "showTypeIcons": false,
         "cellHeight": "sm",
         "footer": {
           "show": false,
@@ -1821,23 +2123,23 @@
       }
     },
     {
-      "id": 19,
+      "id": 21,
       "type": "row",
-      "title": "MONITORING STACK",
+      "title": "Monitoring stack",
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 45
       },
       "panels": []
     },
     {
-      "id": 20,
+      "id": 22,
       "type": "stat",
       "title": "Prometheus",
-      "description": "",
+      "description": "Prometheus is answering its own scrape.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus-1"
@@ -1846,7 +2148,7 @@
         "h": 4,
         "w": 5,
         "x": 0,
-        "y": 41
+        "y": 46
       },
       "targets": [
         {
@@ -1872,8 +2174,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#dc2626",
                 "value": null
+              },
+              {
+                "color": "#16a34a",
+                "value": 1
               }
             ]
           },
@@ -1884,13 +2190,15 @@
               "options": {
                 "0": {
                   "text": "DOWN",
-                  "color": "red",
-                  "index": 0
+                  "color": "#dc2626",
+                  "index": 0,
+                  "icon": "times-circle"
                 },
                 "1": {
                   "text": "UP",
-                  "color": "green",
-                  "index": 1
+                  "color": "#16a34a",
+                  "index": 1,
+                  "icon": "check-circle"
                 }
               }
             }
@@ -1908,16 +2216,23 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
-      "id": 21,
+      "id": 23,
       "type": "stat",
       "title": "Grafana",
-      "description": "",
+      "description": "Grafana metrics endpoint is answering.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus-1"
@@ -1926,7 +2241,7 @@
         "h": 4,
         "w": 5,
         "x": 5,
-        "y": 41
+        "y": 46
       },
       "targets": [
         {
@@ -1952,8 +2267,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#dc2626",
                 "value": null
+              },
+              {
+                "color": "#16a34a",
+                "value": 1
               }
             ]
           },
@@ -1964,13 +2283,15 @@
               "options": {
                 "0": {
                   "text": "DOWN",
-                  "color": "red",
-                  "index": 0
+                  "color": "#dc2626",
+                  "index": 0,
+                  "icon": "times-circle"
                 },
                 "1": {
                   "text": "UP",
-                  "color": "green",
-                  "index": 1
+                  "color": "#16a34a",
+                  "index": 1,
+                  "icon": "check-circle"
                 }
               }
             }
@@ -1988,16 +2309,23 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
-      "id": 22,
+      "id": 24,
       "type": "stat",
       "title": "Blackbox",
-      "description": "",
+      "description": "Blackbox Exporter is answering.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus-1"
@@ -2006,7 +2334,7 @@
         "h": 4,
         "w": 5,
         "x": 10,
-        "y": 41
+        "y": 46
       },
       "targets": [
         {
@@ -2032,8 +2360,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#dc2626",
                 "value": null
+              },
+              {
+                "color": "#16a34a",
+                "value": 1
               }
             ]
           },
@@ -2044,13 +2376,15 @@
               "options": {
                 "0": {
                   "text": "DOWN",
-                  "color": "red",
-                  "index": 0
+                  "color": "#dc2626",
+                  "index": 0,
+                  "icon": "times-circle"
                 },
                 "1": {
                   "text": "UP",
-                  "color": "green",
-                  "index": 1
+                  "color": "#16a34a",
+                  "index": 1,
+                  "icon": "check-circle"
                 }
               }
             }
@@ -2068,16 +2402,23 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
-      "id": 23,
+      "id": 25,
       "type": "stat",
       "title": "Alertmanager",
-      "description": "",
+      "description": "Alertmanager is answering.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus-1"
@@ -2086,7 +2427,7 @@
         "h": 4,
         "w": 4,
         "x": 15,
-        "y": 41
+        "y": 46
       },
       "targets": [
         {
@@ -2112,8 +2453,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#dc2626",
                 "value": null
+              },
+              {
+                "color": "#16a34a",
+                "value": 1
               }
             ]
           },
@@ -2124,13 +2469,15 @@
               "options": {
                 "0": {
                   "text": "DOWN",
-                  "color": "red",
-                  "index": 0
+                  "color": "#dc2626",
+                  "index": 0,
+                  "icon": "times-circle"
                 },
                 "1": {
                   "text": "UP",
-                  "color": "green",
-                  "index": 1
+                  "color": "#16a34a",
+                  "index": 1,
+                  "icon": "check-circle"
                 }
               }
             }
@@ -2148,16 +2495,23 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     },
     {
-      "id": 24,
+      "id": 26,
       "type": "stat",
       "title": "Loki",
-      "description": "",
+      "description": "Loki is answering.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus-1"
@@ -2166,7 +2520,7 @@
         "h": 4,
         "w": 5,
         "x": 19,
-        "y": 41
+        "y": 46
       },
       "targets": [
         {
@@ -2192,8 +2546,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "#dc2626",
                 "value": null
+              },
+              {
+                "color": "#16a34a",
+                "value": 1
               }
             ]
           },
@@ -2204,13 +2562,15 @@
               "options": {
                 "0": {
                   "text": "DOWN",
-                  "color": "red",
-                  "index": 0
+                  "color": "#dc2626",
+                  "index": 0,
+                  "icon": "times-circle"
                 },
                 "1": {
                   "text": "UP",
-                  "color": "green",
-                  "index": 1
+                  "color": "#16a34a",
+                  "index": 1,
+                  "icon": "check-circle"
                 }
               }
             }
@@ -2228,9 +2588,16 @@
         },
         "orientation": "auto",
         "textMode": "value",
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "percentChangeColorMode": "standard",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 36
+        }
       }
     }
   ]

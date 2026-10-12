@@ -1,0 +1,33 @@
+{
+  "id": "sunset-orange",
+  "name": "Sunset Orange",
+  "grafanaTheme": "dark",
+  "colors": {
+    "accent": "#fb923c",
+    "secondary": "#fbbf24",
+    "background": "#1c1410",
+    "panel": "#2a1d16",
+    "border": "#7c4a1e",
+    "heading": "#fff7ed",
+    "body": "#ffedd5",
+    "tableHeader": "#3a2618",
+    "tableRow": "#1c1410",
+    "tableRowAlt": "#261910",
+    "link": "#fdba74",
+    "interactive": "#fb923c",
+    "healthy": "#16a34a",
+    "warning": "#d97706",
+    "critical": "#dc2626",
+    "offline": "#64748b",
+    "nodata": "#94a3b8",
+    "gaugeOk": "#16a34a",
+    "gaugeWarn": "#d97706",
+    "gaugeCritical": "#dc2626",
+    "series": [
+      "#fb923c",
+      "#fbbf24",
+      "#fdba74",
+      "#f97316"
+    ]
+  }
+}

@@ -108,7 +108,7 @@ else
 fi
 
 search=$(curl -fsS -u "$GRAFANA_USER:$GRAFANA_PASSWORD" "$GRAFANA/api/search?type=dash-db")
-for uid in infrastructure-overview server-detail website-monitoring alerts-logs server-monitoring; do
+for uid in server-monitoring infrastructure-overview server-detail docker-monitoring database-monitoring network-monitoring website-monitoring alerts-logs backup-monitoring monitoring-health; do
   if printf '%s' "$search" | python3 -c 'import json,sys; uid=sys.argv[1]; data=json.load(sys.stdin); raise SystemExit(0 if any(d.get("uid")==uid for d in data) else 1)' "$uid"; then
     ok "$uid" "OK"
   else

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Theme customization</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --app-bg: #121418;
+      --app-panel: #1b1e24;
+      --app-border: #2d323b;
+      --app-text: #e7e9ee;
+      --app-muted: #a7adba;
+      --app-accent: #6ea8fe;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "IBM Plex Sans", "Helvetica Neue", sans-serif;
+      background: var(--app-bg);
+      color: var(--app-text);
+      line-height: 1.45;
+    }
+    header, main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    header { padding: 28px 0 8px; }
+    h1 { font-size: 1.7rem; font-weight: 650; margin: 0 0 6px; letter-spacing: -0.02em; }
+    h2 { font-size: 0.95rem; margin: 0 0 12px; font-weight: 650; }
+    p { margin: 0; }
+    .lede { color: var(--app-muted); max-width: 760px; }
+    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; padding: 20px 0 40px; }
+    .panel {
+      background: var(--app-panel);
+      border: 1px solid var(--app-border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .presets { display: grid; gap: 8px; }
+    .preset {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      color: inherit;
+      border: 1px solid var(--app-border);
+      border-radius: 10px;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .preset strong { display: block; font-size: 0.92rem; }
+    .preset span { display: block; color: var(--app-muted); font-size: 0.78rem; }
+    .preset.selected { border-color: var(--app-accent); }
+    .swatches { display: flex; width: 54px; height: 36px; border-radius: 8px; overflow: hidden; }
+    .swatches i { flex: 1; display: block; }
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+    label.field { display: grid; gap: 4px; font-size: 0.78rem; color: var(--app-muted); }
+    input[type="color"] {
+      width: 100%;
+      height: 36px;
+      padding: 0;
+      border: 1px solid var(--app-border);
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+    }
+    .span-2 { grid-column: span 2; }
+    .choice { display: flex; gap: 16px; align-items: center; color: var(--app-text); font-size: 0.9rem; }
+    .preview-wrap { grid-column: 1 / -1; order: -1; }
+    .stage {
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid var(--pv-border);
+      background: var(--pv-bg);
+      color: var(--pv-body);
+    }
+    .stage h3 { margin: 0 0 4px; color: var(--pv-heading); font-size: 1.15rem; }
+    .stage .sub { color: var(--pv-body); margin-bottom: 14px; }
+    .nav { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 14px; font-size: 0.86rem; }
+    .nav a { color: var(--pv-link); text-decoration: none; }
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .card {
+      background: var(--pv-panel);
+      border: 1px solid var(--pv-border);
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 108px;
+    }
+    .card header { width: auto; margin: 0; padding: 0; display: flex; justify-content: space-between; align-items: center; }
+    .card p { font-size: 0.75rem; margin-top: 4px; }
+    .card strong { display: block; font-size: 1.7rem; letter-spacing: -0.03em; color: var(--pv-heading); }
+    .card .label { font-size: 0.78rem; color: var(--pv-body); }
+    .card.status strong { color: white; }
+    .card.status .label, .card.status p { color: rgba(255,255,255,0.88); }
+    .card svg { width: 18px; height: 18px; }
+    .split { display: grid; grid-template-columns: 1.4fr 0.8fr; gap: 10px; margin-top: 10px; }
+    .chart, .table-card, .gauge-card { background: var(--pv-panel); border: 1px solid var(--pv-border); border-radius: 12px; padding: 12px; }
+    .chart svg, .gauge-card svg { width: 100%; height: 140px; display: block; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th { background: var(--pv-table-header); color: var(--pv-heading); text-align: left; padding: 8px; }
+    td { padding: 8px; }
+    tr:nth-child(odd) td { background: var(--pv-row); }
+    tr:nth-child(even) td { background: var(--pv-row-alt); }
+    .pill { border-radius: 999px; padding: 2px 8px; color: white; font-size: 0.75rem; }
+    .actions {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      margin-top: 14px;
+    }
+    button.action {
+      border: 0; border-radius: 10px; padding: 10px 14px; font: inherit; cursor: pointer;
+      background: var(--pv-interactive); color: white;
+    }
+    button.action.secondary { background: transparent; color: var(--pv-heading); border: 1px solid var(--pv-border); }
+    .banner { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #142033; color: #dbeafe; }
+    .banner.error { background: #3f1212; color: #fecaca; }
+    .limit { color: var(--app-muted); font-size: 0.84rem; margin-top: 8px; }
+    @media (max-width: 900px) {
+      .layout, .cards, .split, .fields { grid-template-columns: 1fr; }
+      .span-2 { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Theme customization</h1>
+    <p class="lede">Choose a preset or pick colors. The preview updates immediately. Apply writes the theme and regenerates the Grafana dashboards. Reset returns Dark Professional. Restore brings back the theme from before the last apply.</p>
+  </header>
+  <main class="layout">
+    <section class="panel">
+      <h2>Presets</h2>
+      <div id="presets" class="presets"></div>
+    </section>
+    <section class="panel">
+      <h2>Colors</h2>
+      <div class="choice" style="margin-bottom:12px">
+        <span>Grafana preference</span>
+        <label><input type="radio" name="grafanaTheme" value="dark"> Dark</label>
+        <label><input type="radio" name="grafanaTheme" value="light"> Light</label>
+      </div>
+      <div id="fields" class="fields"></div>
+    </section>
+    <section class="panel preview-wrap" id="preview">
+      <h2>Live preview</h2>
+      <p class="limit" id="limits"></p>
+      <div id="stage" class="stage"></div>
+      <div class="actions">
+        <button class="action" id="apply" type="button">Apply Theme</button>
+        <button class="action secondary" id="reset" type="button">Reset to Default</button>
+        <button class="action secondary" id="restore" type="button">Restore Previous Theme</button>
+        <span id="state" class="limit"></span>
+      </div>
+      <div id="banner" class="banner" hidden></div>
+    </section>
+  </main>
+  <script>
+    const DRAFT_KEY = "monitoring-theme-draft";
+    const FIELD_GROUPS = [
+      ["Accent", ["accent", "Main accent"], ["secondary", "Secondary accent"], ["interactive", "Interactive elements"], ["link", "Links"]],
+      ["Surfaces", ["background", "Dashboard background"], ["panel", "Panel background"], ["border", "Panel border"]],
+      ["Text", ["heading", "Heading text"], ["body", "Body text"]],
+      ["Tables", ["tableHeader", "Table header"], ["tableRow", "Table row"], ["tableRowAlt", "Alternate row"]],
+      ["Status", ["healthy", "Healthy"], ["warning", "Warning"], ["critical", "Critical"], ["offline", "Offline"], ["nodata", "No data"]],
+      ["Gauges", ["gaugeOk", "Gauge low"], ["gaugeWarn", "Gauge middle"], ["gaugeCritical", "Gauge high"]]
+    ];
+    const ICONS = {
+      servers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="6" rx="1.5"/><rect x="3" y="15" width="18" height="6" rx="1.5"/><path d="M7 6h.01M7 18h.01"/></svg>',
+      healthy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.2 2.2 4.8-5"/></svg>',
+      warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4l8 14H4L12 4z"/><path d="M12 10v4M12 16.5h.01"/></svg>',
+      critical: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M9 9l6 6M15 9l-6 6"/></svg>',
+      offline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 7h10v10H7z"/><path d="M5 12H3M21 12h-2M12 5V3M12 21v-2"/></svg>',
+      nodata: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 8h.01M11 11h1v5h1"/></svg>',
+      alerts: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 16V10a6 6 0 1 1 12 0v6l1.5 2H4.5L6 16z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>',
+      web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.8 2.5 13.2 0 16M12 4c-2.5 2.8-2.5 13.2 0 16"/></svg>'
+    };
+    let presets = [];
+    let applied = null;
+    let current = null;
+
+    function clone(value) { return JSON.parse(JSON.stringify(value)); }
+    function css(colors) {
+      const stage = document.getElementById("preview");
+      const map = {
+        "--pv-bg": colors.background,
+        "--pv-panel": colors.panel,
+        "--pv-border": colors.border,
+        "--pv-heading": colors.heading,
+        "--pv-body": colors.body,
+        "--pv-link": colors.link,
+        "--pv-interactive": colors.interactive,
+        "--pv-table-header": colors.tableHeader,
+        "--pv-row": colors.tableRow,
+        "--pv-row-alt": colors.tableRowAlt
+      };
+      Object.entries(map).forEach(([key, value]) => stage.style.setProperty(key, value));
+    }
+    function card(icon, label, value, subtitle, color, solid) {
+      const style = solid ? ` style="background:${color};border-color:${color}"` : "";
+      const valueStyle = solid ? "" : ` style="color:${color}"`;
+      return `<article class="card${solid ? " status" : ""}"${style}>
+        <header><span class="label">${label}</span><span style="color:${solid ? "white" : color}">${ICONS[icon]}</span></header>
+        <strong${valueStyle}>${value}</strong>
+        <p>${subtitle}</p>
+      </article>`;
+    }
+    function renderPreview() {
+      const colors = current.colors;
+      css(colors);
+      const series = colors.series;
+      document.getElementById("stage").innerHTML = `
+        <h3>Infrastructure</h3>
+        <p class="sub">${current.name} · sample data, not live metrics</p>
+        <nav class="nav">
+          <a href="#">Overview</a><a href="#">Server details</a><a href="#">Docker</a>
+          <a href="#">Database</a><a href="#">Network</a><a href="#">Websites</a>
+          <a href="#">Alerts</a><a href="#">Backups</a><a href="#">Stack health</a>
+        </nav>
+        <div class="cards">
+          ${card("servers", "Servers", "3", "Hosts being scraped", colors.accent, false)}
+          ${card("healthy", "Healthy", "2", "Within resource limits", colors.healthy, true)}
+          ${card("warning", "Warning", "1", "Above a warning line", colors.warning, true)}
+          ${card("critical", "Critical", "0", "Above 90% or a failed service", colors.critical, true)}
+          ${card("offline", "Offline", "0", "Exporter did not answer", colors.offline, true)}
+          ${card("nodata", "No data", "0", "CPU metrics are missing", colors.nodata, true)}
+          ${card("alerts", "Active alerts", "1", "Firing right now", colors.critical, true)}
+          ${card("web", "Website availability", "98%", "Sites that answered", colors.healthy, true)}
+        </div>
+        <div class="split">
+          <div class="chart">
+            <strong style="color:var(--pv-heading)">CPU</strong>
+            <svg viewBox="0 0 320 140" role="img" aria-label="Sample CPU chart">
+              <polyline fill="none" stroke="${series[0]}" stroke-width="2.5" points="10,100 50,90 90,70 130,78 170,40 210,55 250,30 300,36"/>
+              <polyline fill="none" stroke="${series[1]}" stroke-width="2.5" points="10,110 50,100 90,96 130,80 170,84 210,70 250,74 300,60"/>
+              <polyline fill="none" stroke="${series[2]}" stroke-width="2.5" points="10,80 50,82 90,60 130,64 170,50 210,58 250,48 300,52"/>
+            </svg>
+          </div>
+          <div class="gauge-card">
+            <strong style="color:var(--pv-heading)">Disk gauge</strong>
+            <svg viewBox="0 0 200 120" role="img" aria-label="Sample gauge">
+              <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="${colors.border}" stroke-width="14" stroke-linecap="round"/>
+              <path d="M20 100 A80 80 0 0 1 150 40" fill="none" stroke="${colors.gaugeWarn}" stroke-width="14" stroke-linecap="round"/>
+              <text x="100" y="96" text-anchor="middle" fill="${colors.heading}" font-size="28">72%</text>
+            </svg>
+          </div>
+        </div>
+        <div class="table-card" style="margin-top:10px">
+          <table>
+            <thead><tr><th>Server</th><th>Health</th><th>CPU</th></tr></thead>
+            <tbody>
+              <tr><td>Maxbridge Development Server</td><td><span class="pill" style="background:${colors.healthy}">Healthy</span></td><td style="color:${series[0]}">24%</td></tr>
+              <tr><td>Dhellavita</td><td><span class="pill" style="background:${colors.warning}">Warning</span></td><td style="color:${series[1]}">81%</td></tr>
+              <tr><td>Citysync</td><td><span class="pill" style="background:${colors.healthy}">Healthy</span></td><td style="color:${series[2]}">18%</td></tr>
+            </tbody>
+          </table>
+        </div>`;
+    }
+    function mark() {
+      const dirty = JSON.stringify(current.colors) !== JSON.stringify(applied.colors) || current.grafanaTheme !== applied.grafanaTheme || current.name !== applied.name;
+      document.getElementById("state").textContent = dirty ? "Unsaved preview" : "Showing the applied theme";
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(current));
+      document.querySelectorAll(".preset").forEach((button) => {
+        button.classList.toggle("selected", button.dataset.id === current.id);
+      });
+    }
+    function readForm() {
+      document.querySelectorAll("[data-color]").forEach((input) => {
+        current.colors[input.dataset.color] = input.value;
+      });
+      for (let index = 0; index < 4; index += 1) {
+        current.colors.series[index] = document.querySelector(`[data-series="${index}"]`).value;
+      }
+      current.grafanaTheme = document.querySelector('input[name="grafanaTheme"]:checked').value;
+    }
+    function writeForm() {
+      document.querySelectorAll("[data-color]").forEach((input) => {
+        input.value = current.colors[input.dataset.color];
+      });
+      for (let index = 0; index < 4; index += 1) {
+        document.querySelector(`[data-series="${index}"]`).value = current.colors.series[index];
+      }
+      document.querySelector(`input[name="grafanaTheme"][value="${current.grafanaTheme}"]`).checked = true;
+    }
+    function touch() {
+      readForm();
+      const match = presets.find((preset) => JSON.stringify(preset.colors) === JSON.stringify(current.colors) && preset.grafanaTheme === current.grafanaTheme);
+      if (match) {
+        current.id = match.id;
+        current.name = match.name;
+      } else {
+        current.id = "custom";
+        current.name = "Custom";
+      }
+      renderPreview();
+      mark();
+    }
+    function useTheme(theme, persistDraft) {
+      current = clone(theme);
+      current.colors.series = current.colors.series.slice(0, 4);
+      while (current.colors.series.length < 4) current.colors.series.push("#6ea8fe");
+      writeForm();
+      renderPreview();
+      if (persistDraft) mark();
+      else {
+        localStorage.removeItem(DRAFT_KEY);
+        document.getElementById("state").textContent = "Showing the applied theme";
+        document.querySelectorAll(".preset").forEach((button) => button.classList.toggle("selected", button.dataset.id === current.id));
+      }
+    }
+    function banner(text, error) {
+      const node = document.getElementById("banner");
+      node.hidden = !text;
+      node.className = error ? "banner error" : "banner";
+      node.textContent = text || "";
+    }
+    async function post(path, body) {
+      banner("");
+      const response = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: body ? JSON.stringify(body) : "{}"
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        banner((payload.errors || ["Request failed"]).join(" "), true);
+        return null;
+      }
+      banner(payload.message || "Saved.");
+      return payload;
+    }
+    function buildFields() {
+      const root = document.getElementById("fields");
+      FIELD_GROUPS.forEach(([title, ...fields]) => {
+        const block = document.createElement("div");
+        block.className = "span-2";
+        block.innerHTML = `<h2 style="margin-top:8px">${title}</h2>`;
+        root.appendChild(block);
+        fields.forEach(([key, label]) => {
+          const wrap = document.createElement("label");
+          wrap.className = "field";
+          wrap.innerHTML = `${label}<input type="color" data-color="${key}">`;
+          wrap.querySelector("input").addEventListener("input", touch);
+          root.appendChild(wrap);
+        });
+      });
+      const series = document.createElement("div");
+      series.className = "span-2";
+      series.innerHTML = "<h2 style='margin-top:8px'>Chart series</h2>";
+      root.appendChild(series);
+      for (let index = 0; index < 4; index += 1) {
+        const wrap = document.createElement("label");
+        wrap.className = "field";
+        wrap.innerHTML = `Series ${index + 1}<input type="color" data-series="${index}">`;
+        wrap.querySelector("input").addEventListener("input", touch);
+        root.appendChild(wrap);
+      }
+      document.querySelectorAll('input[name="grafanaTheme"]').forEach((input) => input.addEventListener("change", touch));
+    }
+    async function init() {
+      buildFields();
+      const response = await fetch("/api/theme");
+      const data = await response.json();
+      presets = data.presets;
+      applied = data.active;
+      document.getElementById("limits").textContent = (data.limitations || []).join(" ");
+      const presetRoot = document.getElementById("presets");
+      presets.forEach((preset) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "preset";
+        button.dataset.id = preset.id;
+        button.innerHTML = `<span class="swatches"><i style="background:${preset.colors.background}"></i><i style="background:${preset.colors.accent}"></i><i style="background:${preset.colors.secondary}"></i></span><span><strong>${preset.name}</strong><span>${preset.blurb}</span></span>`;
+        button.addEventListener("click", () => useTheme(preset, true));
+        presetRoot.appendChild(button);
+      });
+      let draft = null;
+      try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch (error) { draft = null; }
+      useTheme(draft || applied, Boolean(draft));
+      document.getElementById("apply").addEventListener("click", async () => {
+        readForm();
+        const payload = await post("/api/theme/apply", current);
+        if (!payload) return;
+        applied = payload.theme;
+        useTheme(applied, false);
+      });
+      document.getElementById("reset").addEventListener("click", async () => {
+        const payload = await post("/api/theme/reset");
+        if (!payload) return;
+        applied = payload.theme;
+        useTheme(applied, false);
+      });
+      document.getElementById("restore").addEventListener("click", async () => {
+        const payload = await post("/api/theme/restore");
+        if (!payload) return;
+        applied = payload.theme;
+        useTheme(applied, false);
+      });
+    }
+    init().catch((error) => banner(String(error), true));
+  </script>
+</body>
+</html>

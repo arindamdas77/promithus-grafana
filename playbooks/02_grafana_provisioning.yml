@@ -15,10 +15,16 @@
       loop:
         - "{{ monitoring_dir }}/grafana/provisioning/datasources/prometheus.yml"
         - "{{ monitoring_dir }}/grafana/provisioning/dashboards/dashboards.yml"
+        - "{{ monitoring_dir }}/grafana/dashboards/server-monitoring.json"
         - "{{ monitoring_dir }}/grafana/dashboards/infrastructure-overview.json"
         - "{{ monitoring_dir }}/grafana/dashboards/server-detail.json"
+        - "{{ monitoring_dir }}/grafana/dashboards/docker-monitoring.json"
+        - "{{ monitoring_dir }}/grafana/dashboards/database-monitoring.json"
+        - "{{ monitoring_dir }}/grafana/dashboards/network-monitoring.json"
         - "{{ monitoring_dir }}/grafana/dashboards/website-monitoring.json"
         - "{{ monitoring_dir }}/grafana/dashboards/alerts-logs.json"
+        - "{{ monitoring_dir }}/grafana/dashboards/backup-monitoring.json"
+        - "{{ monitoring_dir }}/grafana/dashboards/monitoring-health.json"
       register: provisioning_files
 
     - name: Require provisioning files

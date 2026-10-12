@@ -2,45 +2,52 @@
 """Build the operator dashboards mounted into Grafana."""
 
 import json
+import os
 from pathlib import Path
+
+from theme_catalog import load_theme, server_names
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "monitoring" / "grafana" / "dashboards"
 DS = {"type": "prometheus", "uid": "prometheus-1"}
 LOKI = {"type": "loki", "uid": "loki-1"}
+THEME = load_theme()
+COLORS = THEME["colors"]
+SCHEMA_VERSION = 42
+
+
+def dashboard_link(title, url, icon="dashboard"):
+    return {
+        "title": title,
+        "type": "link",
+        "icon": icon,
+        "url": url,
+        "keepTime": True,
+        "includeVars": True,
+        "targetBlank": False,
+    }
+
 
 LINKS = [
+    dashboard_link("Home", "/d/server-monitoring/server-monitoring"),
+    dashboard_link("Overview", "/d/infrastructure-overview/infrastructure-overview"),
+    dashboard_link("Server details", "/d/server-detail/server-detail"),
+    dashboard_link("Docker", "/d/docker-monitoring/docker-monitoring"),
+    dashboard_link("Database", "/d/database-monitoring/database-monitoring"),
+    dashboard_link("Network", "/d/network-monitoring/network-monitoring"),
+    dashboard_link("Websites", "/d/website-monitoring/website-monitoring-48-sites"),
+    dashboard_link("Alerts", "/d/alerts-logs/alerts-and-logs"),
+    dashboard_link("Backups", "/d/backup-monitoring/backup-monitoring"),
+    dashboard_link("Stack health", "/d/monitoring-health/monitoring-system-health"),
     {
-        "title": "Infrastructure Overview",
+        "title": "Theme",
         "type": "link",
-        "icon": "dashboard",
-        "url": "/d/infrastructure-overview/infrastructure-overview",
-        "keepTime": True,
-        "includeVars": True,
-    },
-    {
-        "title": "Server Detail",
-        "type": "link",
-        "icon": "dashboard",
-        "url": "/d/server-detail/server-detail",
-        "keepTime": True,
-        "includeVars": True,
-    },
-    {
-        "title": "Website Monitoring",
-        "type": "link",
-        "icon": "dashboard",
-        "url": "/d/website-monitoring/website-monitoring-48-sites",
-        "keepTime": True,
-        "includeVars": True,
-    },
-    {
-        "title": "Alerts and Logs",
-        "type": "link",
-        "icon": "dashboard",
-        "url": "/d/alerts-logs/alerts-and-logs",
-        "keepTime": True,
-        "includeVars": True,
+        "icon": "external link",
+        "url": os.environ.get("THEME_STUDIO_URL", "http://127.0.0.1:3013/"),
+        "keepTime": False,
+        "includeVars": False,
+        "targetBlank": True,
+        "tooltip": "Open the theme studio",
     },
 ]
 
@@ -72,18 +79,18 @@ def prom(ref, expr, instant=True):
     }
 
 
-def stat(pid, title, expr, x, y, w=3, h=4, mappings=None, unit=None, decimals=0, no_value="0", description=""):
+def stat(pid, title, expr, x, y, w=3, h=4, mappings=None, unit=None, decimals=0, no_value="0", description="", solid=False):
     defaults = {
         "decimals": decimals,
         "color": {"mode": "thresholds"},
-        "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": None}]},
+        "thresholds": {"mode": "absolute", "steps": [{"color": COLORS["accent"], "value": None}]},
         "noValue": no_value,
     }
     if unit:
         defaults["unit"] = unit
     if mappings:
         defaults["mappings"] = mappings
-    return {
+    panel = {
         "id": pid,
         "type": "stat",
         "title": title,
@@ -96,11 +103,17 @@ def stat(pid, title, expr, x, y, w=3, h=4, mappings=None, unit=None, decimals=0,
             "reduceOptions": {"values": False, "calcs": ["lastNotNull"], "fields": ""},
             "orientation": "auto",
             "textMode": "value",
-            "colorMode": "background",
+            "colorMode": "background_solid" if solid else "value",
             "graphMode": "none",
-            "justifyMode": "auto",
+            "justifyMode": "center" if solid else "auto",
+            "wideLayout": True,
+            "showPercentChange": False,
+            "percentChangeColorMode": "standard",
         },
     }
+    if solid:
+        panel["options"]["text"] = {"titleSize": 14, "valueSize": 36}
+    return panel
 
 
 def row(pid, title, y):
@@ -126,50 +139,45 @@ def website_status_expr():
     )
 
 
-STATUS_MAP = [
-    {
-        "type": "value",
-        "options": {
-            "0": {"text": "DOWN", "color": "red", "index": 0},
-            "1": {"text": "SLOW", "color": "orange", "index": 1},
-            "2": {"text": "UP", "color": "green", "index": 2},
-        },
-    }
-]
+def value_map(rows):
+    options = {}
+    for index, (key, text, color, icon) in enumerate(rows):
+        item = {"text": text, "color": color, "index": index}
+        if icon:
+            item["icon"] = icon
+        options[str(key)] = item
+    return [{"type": "value", "options": options}]
 
-UP_MAP = [
-    {
-        "type": "value",
-        "options": {
-            "0": {"text": "DOWN", "color": "red", "index": 0},
-            "1": {"text": "UP", "color": "green", "index": 1},
-        },
-    }
-]
 
-SERVICE_MAP = [
-    {
-        "type": "value",
-        "options": {
-            "0": {"text": "Stopped", "color": "orange", "index": 0},
-            "1": {"text": "Failed", "color": "red", "index": 1},
-            "2": {"text": "Running", "color": "green", "index": 2},
-        },
-    }
-]
+STATUS_MAP = value_map([
+    ("0", "DOWN", COLORS["critical"], "times-circle"),
+    ("1", "SLOW", COLORS["warning"], "exclamation-triangle"),
+    ("2", "UP", COLORS["healthy"], "check-circle"),
+])
 
-HEALTH_MAP = [
-    {
-        "type": "value",
-        "options": {
-            "0": {"text": "Offline", "color": "red", "index": 0},
-            "1": {"text": "Critical", "color": "red", "index": 1},
-            "2": {"text": "Warning", "color": "orange", "index": 2},
-            "3": {"text": "Healthy", "color": "green", "index": 3},
-            "4": {"text": "No Data", "color": "blue", "index": 4},
-        },
-    }
-]
+UP_MAP = value_map([
+    ("0", "DOWN", COLORS["critical"], "times-circle"),
+    ("1", "UP", COLORS["healthy"], "check-circle"),
+])
+
+SERVICE_MAP = value_map([
+    ("0", "Stopped", COLORS["warning"], "pause-circle"),
+    ("1", "Failed", COLORS["critical"], "times-circle"),
+    ("2", "Running", COLORS["healthy"], "check-circle"),
+])
+
+HEALTH_MAP = value_map([
+    ("0", "Offline", COLORS["offline"], "power"),
+    ("1", "Critical", COLORS["critical"], "exclamation-circle"),
+    ("2", "Warning", COLORS["warning"], "exclamation-triangle"),
+    ("3", "Healthy", COLORS["healthy"], "check-circle"),
+    ("4", "No Data", COLORS["nodata"], "question-circle"),
+])
+
+SEVERITY_MAP = value_map([
+    ("critical", "Critical", COLORS["critical"], "exclamation-circle"),
+    ("warning", "Warning", COLORS["warning"], "exclamation-triangle"),
+])
 
 SERVICE_NAME_MAP = [
     {
@@ -192,9 +200,9 @@ SERVICE_NAME_MAP = [
 ]
 
 PERCENT_STEPS = [
-    {"color": "green", "value": None},
-    {"color": "orange", "value": 80},
-    {"color": "red", "value": 90},
+    {"color": COLORS["gaugeOk"], "value": None},
+    {"color": COLORS["gaugeWarn"], "value": 80},
+    {"color": COLORS["gaugeCritical"], "value": 90},
 ]
 
 ALERT_TEXT_MAP = [
@@ -267,14 +275,31 @@ def heat_override(field, width):
 
 def tone(panel, kind):
     if kind == "good":
-        steps = [{"color": "red", "value": None}, {"color": "green", "value": 1}]
+        steps = [{"color": COLORS["critical"], "value": None}, {"color": COLORS["healthy"], "value": 1}]
+        solid = True
     elif kind == "warn":
-        steps = [{"color": "green", "value": None}, {"color": "orange", "value": 1}]
+        steps = [{"color": COLORS["healthy"], "value": None}, {"color": COLORS["warning"], "value": 1}]
+        solid = True
     elif kind == "bad":
-        steps = [{"color": "green", "value": None}, {"color": "red", "value": 1}]
+        steps = [{"color": COLORS["healthy"], "value": None}, {"color": COLORS["critical"], "value": 1}]
+        solid = True
+    elif kind == "offline":
+        steps = [{"color": COLORS["healthy"], "value": None}, {"color": COLORS["offline"], "value": 1}]
+        solid = True
+    elif kind == "nodata":
+        steps = [{"color": COLORS["healthy"], "value": None}, {"color": COLORS["nodata"], "value": 1}]
+        solid = True
     else:
-        steps = [{"color": "blue", "value": None}]
+        steps = [{"color": COLORS["accent"], "value": None}]
+        solid = False
     panel["fieldConfig"]["defaults"]["thresholds"] = {"mode": "absolute", "steps": steps}
+    panel["fieldConfig"]["defaults"]["color"] = {"mode": "thresholds"}
+    panel["options"]["colorMode"] = "background_solid" if solid else "value"
+    panel["options"]["justifyMode"] = "center" if solid else "auto"
+    if solid:
+        panel["options"]["text"] = {"titleSize": 14, "valueSize": 36}
+    else:
+        panel["options"].pop("text", None)
     return panel
 
 
@@ -307,6 +332,14 @@ def gauge(pid, title, expr, x, y, w, h, description, unit="percent", maximum=100
             "showThresholdLabels": False,
             "showThresholdMarkers": True,
             "sizing": "auto",
+            "shape": "gauge",
+            "barShape": "rounded",
+            "barWidthFactor": 0.4,
+            "sparkline": False,
+            "textMode": "value",
+            "endpointMarker": "point",
+            "effects": {"barGlow": False, "centerGlow": False, "gradient": False},
+            "text": {"titleSize": 14, "valueSize": 22},
         },
     }
 
@@ -336,6 +369,7 @@ def labelled(expr, issue, next_step, source="server", regex=".+"):
 def table(pid, title, targets, y, h, organize, overrides, sort_field, sort_desc=False, description="", page=False):
     options = {
         "showHeader": True,
+        "showTypeIcons": False,
         "cellHeight": "sm",
         "footer": {"show": False, "reducer": ["sum"], "countRows": False, "fields": ""},
         "sortBy": [{"displayName": sort_field, "desc": sort_desc}],
@@ -369,17 +403,46 @@ def table(pid, title, targets, y, h, organize, overrides, sort_field, sort_desc=
     }
 
 
-def timeseries(pid, title, expr, x, y, w, h, unit, description="", decimals=1, maximum=None, thresholds=None):
+def series_overrides(names):
+    overrides = []
+    palette = COLORS["series"]
+    for index, name in enumerate(names):
+        overrides.append({
+            "matcher": {"id": "byName", "options": name},
+            "properties": [{
+                "id": "color",
+                "value": {"mode": "fixed", "fixedColor": palette[index % len(palette)]},
+            }],
+        })
+    return overrides
+
+
+def timeseries(pid, title, expr, x, y, w, h, unit, description="", decimals=1, maximum=None, thresholds=None, legend="{{server}}", color_names=None):
     target = prom("A", expr, instant=False)
-    target["legendFormat"] = "{{server}}"
-    custom = {"drawStyle": "line", "lineWidth": 2, "fillOpacity": 10, "showPoints": "never", "spanNulls": False}
-    defaults = {"unit": unit, "decimals": decimals, "custom": custom}
+    target["legendFormat"] = legend
+    custom = {
+        "drawStyle": "line",
+        "lineInterpolation": "linear",
+        "lineWidth": 2,
+        "fillOpacity": 16,
+        "gradientMode": "opacity",
+        "showPoints": "never",
+        "pointSize": 5,
+        "spanNulls": False,
+        "axisSoftMin": 0,
+        "axisPlacement": "auto",
+    }
+    defaults = {"unit": unit, "decimals": decimals, "custom": custom, "color": {"mode": "palette-classic"}}
+    overrides = []
     if maximum is not None:
         defaults["min"] = 0
         defaults["max"] = maximum
     if thresholds:
+        defaults["color"] = {"mode": "thresholds"}
         defaults["thresholds"] = {"mode": "absolute", "steps": thresholds}
         custom["thresholdsStyle"] = {"mode": "dashed"}
+    else:
+        overrides = series_overrides(server_names() if color_names is None else color_names)
     return {
         "id": pid,
         "type": "timeseries",
@@ -388,9 +451,9 @@ def timeseries(pid, title, expr, x, y, w, h, unit, description="", decimals=1, m
         "datasource": DS,
         "gridPos": {"h": h, "w": w, "x": x, "y": y},
         "targets": [target],
-        "fieldConfig": {"defaults": defaults, "overrides": []},
+        "fieldConfig": {"defaults": defaults, "overrides": overrides},
         "options": {
-            "legend": {"displayMode": "list", "placement": "bottom", "calcs": []},
+            "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
             "tooltip": {"mode": "multi", "sort": "desc"},
         },
     }
@@ -403,13 +466,32 @@ def shell():
         "fiscalYearStartMonth": 0,
         "graphTooltip": 1,
         "links": LINKS,
-        "schemaVersion": 39,
-        "style": "dark",
+        "schemaVersion": SCHEMA_VERSION,
         "tags": ["operations"],
         "timezone": "browser",
         "time": {"from": "now-6h", "to": "now"},
         "refresh": "30s",
         "version": 1,
+    }
+
+
+def server_variable():
+    return {
+        "name": "server",
+        "label": "Server",
+        "type": "query",
+        "datasource": DS,
+        "definition": 'label_values(up{job=~"server-0[123]"}, server)',
+        "query": {"query": 'label_values(up{job=~"server-0[123]"}, server)', "refId": "StandardVariableQuery"},
+        "includeAll": True,
+        "allValue": ".+",
+        "multi": False,
+        "refresh": 1,
+        "sort": 1,
+        "current": {"selected": True, "text": "All", "value": "$__all"},
+        "options": [{"selected": True, "text": "All", "value": "$__all"}],
+        "regex": "",
+        "hide": 0,
     }
 
 
@@ -813,8 +895,9 @@ def label_replace_up(job):
     )
 
 
-def service_expr(selector):
-    base = f'{job_of(selector)},name=~"{SERVICES}"'
+def service_expr(selector, services=None):
+    names = SERVICES if services is None else services
+    base = f'{job_of(selector)},name=~"{names}"'
     expr = f"""
 max by (server, name) (
   (node_systemd_unit_state{{{base}, state="active"}} == 1) * 2
@@ -827,7 +910,7 @@ max by (server, name) (
     return f'label_replace({named(expr, "unit_state", "name")}, "service", "$1", "name", "(.*)\\\\.service")'
 
 
-def service_table(pid, title, y, h, selector):
+def service_table(pid, title, y, h, selector, services=None):
     organize = {
         "join": ["server", "service"],
         "exclude": {"instance": True, "job": True, "Time": True, "__name__": True, "name": True, "state": True, "type": True},
@@ -837,7 +920,7 @@ def service_table(pid, title, y, h, selector):
     panel = table(
         pid,
         title,
-        [prom("A", service_expr(selector))],
+        [prom("A", service_expr(selector, services))],
         y,
         h,
         organize,
@@ -952,7 +1035,7 @@ def filesystem_table(pid, y, selector):
                         "value": [
                             {
                                 "type": "range",
-                                "options": {"from": 3650, "to": 2000000, "result": {"text": "Stable", "color": "green"}},
+                                "options": {"from": 3650, "to": 2000000, "result": {"text": "Stable", "color": COLORS["healthy"]}},
                             }
                         ],
                     },
@@ -961,9 +1044,9 @@ def filesystem_table(pid, y, selector):
                         "value": {
                             "mode": "absolute",
                             "steps": [
-                                {"color": "red", "value": None},
-                                {"color": "orange", "value": 14},
-                                {"color": "green", "value": 30},
+                                {"color": COLORS["critical"], "value": None},
+                                {"color": COLORS["warning"], "value": 14},
+                                {"color": COLORS["healthy"], "value": 30},
                             ],
                         },
                     },
@@ -1106,13 +1189,7 @@ def firing_alert_table(pid, y, server_match):
         {
             "matcher": {"id": "byName", "options": "Severity"},
             "properties": [
-                {"id": "mappings", "value": [{
-                    "type": "value",
-                    "options": {
-                        "critical": {"text": "Critical", "color": "red"},
-                        "warning": {"text": "Warning", "color": "orange"},
-                    },
-                }]},
+                {"id": "mappings", "value": SEVERITY_MAP},
                 {"id": "custom.cellOptions", "value": {"mode": "basic", "type": "color-background"}},
                 {"id": "custom.width", "value": 120},
             ],
@@ -1158,51 +1235,109 @@ def firing_alert_table(pid, y, server_match):
     )
 
 
+def kpi_panels(start_id, y0):
+    health = health_expr("")
+    availability = (
+        '(100 * count(probe_success{job="blackbox-http"} == 1) '
+        '/ count(probe_success{job="blackbox-http"})) or vector(0)'
+    )
+    specs = [
+        ("Servers", f"count({health}) or vector(0)", "info", "Hosts Prometheus is configured to scrape."),
+        ("Healthy", f"count(({health}) == 3) or vector(0)", "good", "CPU, memory, and disk under 80%, swap under 50%, and load within CPU capacity."),
+        ("Warning", f"count(({health}) == 2) or vector(0)", "warn", "At least one resource is above its warning line."),
+        ("Critical", f"count(({health}) == 1) or vector(0)", "bad", "A resource is above 90% or an important service has failed."),
+        ("Offline", f"count(({health}) == 0) or vector(0)", "offline", "Node Exporter did not answer the last scrape."),
+        ("No data", f"count(({health}) == 4) or vector(0)", "nodata", "The exporter answered, but CPU metrics are missing."),
+        ("Active alerts", 'count(ALERTS{alertstate="firing"}) or vector(0)', "bad", "Firing alerts for servers, websites, and the monitoring stack."),
+        ("Website availability", availability, "availability", "Share of probed sites that answered."),
+    ]
+    panels = []
+    pid = start_id
+    for index, (title, expr, kind, description) in enumerate(specs):
+        x = (index % 4) * 6
+        y = y0 + (index // 4) * 5
+        if kind == "availability":
+            panel = stat(
+                pid, title, expr, x, y, w=6, h=5, unit="percent", decimals=1,
+                description=description, solid=True,
+            )
+            panel["fieldConfig"]["defaults"]["min"] = 0
+            panel["fieldConfig"]["defaults"]["max"] = 100
+            panel["fieldConfig"]["defaults"]["thresholds"] = {
+                "mode": "absolute",
+                "steps": [
+                    {"color": COLORS["critical"], "value": None},
+                    {"color": COLORS["warning"], "value": 95},
+                    {"color": COLORS["healthy"], "value": 99},
+                ],
+            }
+            panel["fieldConfig"]["defaults"]["color"] = {"mode": "thresholds"}
+            panel["options"]["colorMode"] = "background_solid"
+        else:
+            panel = tone(stat(pid, title, expr, x, y, w=6, h=5, description=description), kind)
+        panels.append(panel)
+        pid += 1
+    return panels, pid, y0 + 10
+
+
+def stack_stats(start_id, y):
+    specs = [
+        (start_id, "Prometheus", 'up{job="prometheus"}', 0, 5, "Prometheus is answering its own scrape."),
+        (start_id + 1, "Grafana", 'up{job="grafana"}', 5, 5, "Grafana metrics endpoint is answering."),
+        (start_id + 2, "Blackbox", 'up{job="blackbox-exporter"}', 10, 5, "Blackbox Exporter is answering."),
+        (start_id + 3, "Alertmanager", 'up{job="alertmanager"}', 15, 4, "Alertmanager is answering."),
+        (start_id + 4, "Loki", 'up{job="loki"}', 19, 5, "Loki is answering."),
+    ]
+    panels = []
+    for pid, title, expr, x, width, description in specs:
+        panels.append(tone(stat(
+            pid, title, expr, x, y, w=width, h=4, mappings=UP_MAP, no_value="Offline", description=description,
+        ), "good"))
+    return panels
+
+
 def infrastructure():
     dash = shell()
     dash.update(
         {
             "uid": "infrastructure-overview",
             "title": "Infrastructure Overview",
-            "description": "Start here. Green is healthy, orange needs attention, red is critical or offline.",
+            "description": "Healthy is green, warning is amber, critical is red, and offline is gray.",
             "tags": ["operations", "overview"],
             "templating": {"list": []},
         }
     )
-    health = health_expr("")
     panels = [
         note(
             1,
-            "Green is healthy. Orange needs a look. Red means a resource is nearly full, a service has failed, or the server is offline. "
-            "Open a server name for memory, disk, network, and what to check next. "
-            "Container CPU and memory are not on this dashboard because cAdvisor is not installed.",
+            "Healthy is green. Warning is amber. Critical is red. Offline is gray, and missing metrics are a lighter neutral. "
+            "Open a server name for memory, disk, network, and the next check. "
+            "Container CPU and memory need cAdvisor. That gap is explained on Docker.",
             0,
-            3,
-        ),
-        tone(stat(2, "Servers", f"count({health}) or vector(0)", 0, 3, w=4, description="Servers Prometheus is configured to scrape."), "info"),
-        tone(stat(3, "Healthy", f"count(({health}) == 3) or vector(0)", 4, 3, w=4, description="CPU, memory, and disk under 80%, swap under 50%, and load within CPU capacity."), "good"),
-        tone(stat(4, "Warnings", f"count(({health}) == 2) or vector(0)", 8, 3, w=4, description="At least one resource is above its warning line."), "warn"),
-        tone(stat(5, "Critical", f"count(({health}) == 1) or vector(0)", 12, 3, w=4, description="A resource is above 90% or an important service has failed."), "bad"),
-        tone(stat(6, "Offline", f"count(({health}) == 0) or vector(0)", 16, 3, w=4, description="Node Exporter did not answer the last scrape."), "bad"),
-        tone(stat(7, "No Data", f"count(({health}) == 4) or vector(0)", 20, 3, w=4, description="The exporter answered, but CPU metrics are missing."), "warn"),
-        tone(stat(8, "Websites", 'count(probe_success{job="blackbox-http"}) or vector(0)', 0, 7, w=4, description="Sites checked by Blackbox."), "info"),
-        tone(stat(9, "Websites up", 'count(probe_success{job="blackbox-http"} == 1) or vector(0)', 4, 7, w=4), "good"),
-        tone(stat(10, "Websites down", 'count(probe_success{job="blackbox-http"} == 0) or vector(0)', 8, 7, w=4), "bad"),
-        tone(stat(11, "Critical alerts", 'count(ALERTS{alertstate="firing",severity="critical"}) or vector(0)', 12, 7, w=6, description="Firing critical alerts for servers and websites."), "bad"),
-        tone(stat(12, "Warning alerts", 'count(ALERTS{alertstate="firing",severity="warning"}) or vector(0)', 18, 7, w=6, description="Firing warning alerts. Open Alerts and Logs for how long each one has lasted."), "warn"),
-        row(13, "SERVERS", 11),
-        server_table(14, "Server health", 12, 8, ""),
-        row(15, "WHAT NEEDS ATTENTION", 20),
-        attention_table(16, "Current problems", 21, 8, ""),
-        row(17, "SERVICES", 29),
-        service_table(18, "Service status", 30, 10, ""),
-        row(19, "MONITORING STACK", 40),
-        stat(20, "Prometheus", 'up{job="prometheus"}', 0, 41, w=5, h=4, mappings=UP_MAP, no_value="Offline"),
-        stat(21, "Grafana", 'up{job="grafana"}', 5, 41, w=5, h=4, mappings=UP_MAP, no_value="Offline"),
-        stat(22, "Blackbox", 'up{job="blackbox-exporter"}', 10, 41, w=5, h=4, mappings=UP_MAP, no_value="Offline"),
-        stat(23, "Alertmanager", 'up{job="alertmanager"}', 15, 41, w=4, h=4, mappings=UP_MAP, no_value="Offline"),
-        stat(24, "Loki", 'up{job="loki"}', 19, 41, w=5, h=4, mappings=UP_MAP, no_value="Offline"),
+            2,
+        )
     ]
+    cards, pid, y = kpi_panels(2, 2)
+    panels.extend(cards)
+    panels.extend([
+        tone(stat(pid, "Websites", 'count(probe_success{job="blackbox-http"}) or vector(0)', 0, y, w=4, h=4, description="Sites checked by Blackbox."), "info"),
+        tone(stat(pid + 1, "Websites up", 'count(probe_success{job="blackbox-http"} == 1) or vector(0)', 4, y, w=4, h=4), "good"),
+        tone(stat(pid + 2, "Websites down", 'count(probe_success{job="blackbox-http"} == 0) or vector(0)', 8, y, w=4, h=4), "bad"),
+        tone(stat(pid + 3, "Critical alerts", 'count(ALERTS{alertstate="firing",severity="critical"}) or vector(0)', 12, y, w=6, h=4, description="Firing critical alerts for servers and websites."), "bad"),
+        tone(stat(pid + 4, "Warning alerts", 'count(ALERTS{alertstate="firing",severity="warning"}) or vector(0)', 18, y, w=6, h=4, description="Firing warning alerts. Open Alerts for how long each one has lasted."), "warn"),
+    ])
+    pid += 5
+    y += 4
+    panels.extend([
+        row(pid, "Servers", y),
+        server_table(pid + 1, "Server health", y + 1, 8, ""),
+        row(pid + 2, "What needs attention", y + 9),
+        attention_table(pid + 3, "Current problems", y + 10, 8, ""),
+        row(pid + 4, "Services", y + 18),
+        service_table(pid + 5, "Service status", y + 19, 10, ""),
+        row(pid + 6, "Monitoring stack", y + 29),
+    ])
+    panels.extend(stack_stats(pid + 7, y + 30))
     dash["panels"] = panels
     return dash
 
@@ -1216,35 +1351,15 @@ def server_detail():
         {
             "uid": "server-detail",
             "title": "Server Detail",
-            "description": "One server, or all three. Gauges turn orange at 80% and red at 90%.",
+            "description": "One server, or all of them. Gauges turn amber at 80% and red at 90%.",
             "tags": ["operations", "servers"],
-            "templating": {
-                "list": [
-                    {
-                        "name": "server",
-                        "label": "Server",
-                        "type": "query",
-                        "datasource": DS,
-                        "definition": 'label_values(up{job=~"server-0[123]"}, server)',
-                        "query": {"query": 'label_values(up{job=~"server-0[123]"}, server)', "refId": "StandardVariableQuery"},
-                        "includeAll": True,
-                        "allValue": ".+",
-                        "multi": False,
-                        "refresh": 1,
-                        "sort": 1,
-                        "current": {"selected": True, "text": "All", "value": "$__all"},
-                        "options": [{"selected": True, "text": "All", "value": "$__all"}],
-                        "regex": "",
-                        "hide": 0,
-                    }
-                ]
-            },
+            "templating": {"list": [server_variable()]},
         }
     )
     swap_steps = [
-        {"color": "green", "value": None},
-        {"color": "orange", "value": 50},
-        {"color": "red", "value": 80},
+        {"color": COLORS["gaugeOk"], "value": None},
+        {"color": COLORS["gaugeWarn"], "value": 50},
+        {"color": COLORS["gaugeCritical"], "value": 80},
     ]
     panels = [
         note(
@@ -1303,13 +1418,13 @@ def server_detail():
             11, "Reboots in 7 days", f"max by (server) (changes(node_boot_time_seconds{{{job}}}[7d]))", 20, 9, w=4, h=4, decimals=0,
             description="How many times the boot time changed in 7 days. This is context, not a failure by itself.",
         )),
-        row(12, "IDENTITY", 13),
+        row(12, "Identity", 13),
         identity_table(13, 14, sel),
-        row(14, "MEMORY", 20),
+        row(14, "Memory", 20),
         memory_table(15, 21, sel),
-        row(16, "DISK SPACE", 27),
+        row(16, "Disk space", 27),
         filesystem_table(17, 28, sel),
-        row(18, "WHAT NEEDS ATTENTION", 36),
+        row(18, "What needs attention", 36),
         tone(stat(
             19,
             "Problems right now",
@@ -1352,23 +1467,24 @@ def server_detail():
         ("Disk busy", f'max by (server) (rate(node_disk_io_time_seconds_total{{{DISK_DEV},{job}}}[5m]) * 100)', "percent", "How much of the time the disk was busy. Near 100% the disk is the bottleneck.", {"maximum": 100, "thresholds": PERCENT_STEPS}),
         ("Network errors", f'sum by (server) (rate(node_network_receive_errs_total{{{NET_DEV},{job}}}[5m]) + rate(node_network_transmit_errs_total{{{NET_DEV},{job}}}[5m]))', "ops", "Receive and transmit errors per second on real interfaces.", {}),
         ("Dropped packets", f'sum by (server) (rate(node_network_receive_drop_total{{{NET_DEV},{job}}}[5m]) + rate(node_network_transmit_drop_total{{{NET_DEV},{job}}}[5m]))', "ops", "Receive and transmit drops per second. Occasional drops can be normal; a sustained rise is not.", {}),
+        ("Uptime", f"max by (server) (time() - node_boot_time_seconds{{{job}}})", "s", "Time since the last boot. A drop to the bottom is a reboot.", {}),
     ]
     y = 58
     pid = 30
     for index, (title, expr, unit, description, opts) in enumerate(charts):
         x = 0 if index % 2 == 0 else 12
         if index and x == 0:
-            y += 8
-        panels.append(timeseries(pid, title, expr, x, y, 12, 8, unit, description, **opts))
+            y += 9
+        panels.append(timeseries(pid, title, expr, x, y, 12, 9, unit, description, **opts))
         pid += 1
-    y += 8
-    panels.append(row(pid, "SERVICES", y))
+    y += 9
+    panels.append(row(pid, "Services", y))
     pid += 1
     y += 1
     panels.append(service_table(pid, "Service status", y, 10, sel))
     pid += 1
     y += 10
-    panels.append(row(pid, "PROCESSES", y))
+    panels.append(row(pid, "Processes", y))
     pid += 1
     y += 1
     panels.append(show_each(stat(
@@ -1382,7 +1498,7 @@ def server_detail():
     ), "info")))
     panels[-1]["fieldConfig"]["defaults"]["thresholds"] = {
         "mode": "absolute",
-        "steps": [{"color": "green", "value": None}, {"color": "orange", "value": 5}],
+        "steps": [{"color": COLORS["healthy"], "value": None}, {"color": COLORS["warning"], "value": 5}],
     }
     pid += 1
     panels.append(show_each(stat(
@@ -1391,7 +1507,7 @@ def server_detail():
     )))
     panels[-1]["fieldConfig"]["defaults"]["thresholds"] = {
         "mode": "absolute",
-        "steps": [{"color": "green", "value": None}, {"color": "orange", "value": 10}],
+        "steps": [{"color": COLORS["healthy"], "value": None}, {"color": COLORS["warning"], "value": 10}],
     }
     pid += 1
     y += 4
@@ -1421,20 +1537,20 @@ def empty_or(expr, label, metric):
 
 def reason_map():
     options = {
-        "0": ("No HTTP response", "red"),
-        "200": ("OK", "green"),
-        "201": ("Created", "green"),
-        "204": ("No content", "green"),
-        "301": ("Redirect", "blue"),
-        "302": ("Redirect", "blue"),
-        "400": ("Bad request", "orange"),
-        "401": ("Unauthorized", "orange"),
-        "403": ("Forbidden", "orange"),
-        "404": ("Not found", "yellow"),
-        "500": ("Server error", "red"),
-        "502": ("Bad gateway", "red"),
-        "503": ("Unavailable", "red"),
-        "504": ("Gateway timeout", "red"),
+        "0": ("No HTTP response", COLORS["critical"]),
+        "200": ("OK", COLORS["healthy"]),
+        "201": ("Created", COLORS["healthy"]),
+        "204": ("No content", COLORS["healthy"]),
+        "301": ("Redirect", COLORS["accent"]),
+        "302": ("Redirect", COLORS["accent"]),
+        "400": ("Bad request", COLORS["warning"]),
+        "401": ("Unauthorized", COLORS["warning"]),
+        "403": ("Forbidden", COLORS["warning"]),
+        "404": ("Not found", COLORS["warning"]),
+        "500": ("Server error", COLORS["critical"]),
+        "502": ("Bad gateway", COLORS["critical"]),
+        "503": ("Unavailable", COLORS["critical"]),
+        "504": ("Gateway timeout", COLORS["critical"]),
     }
     return [{
         "type": "value",
@@ -1459,7 +1575,7 @@ def loki_stat(pid, title, expr, x, y, w=4, description=""):
                 "decimals": 0,
                 "noValue": "0",
                 "color": {"mode": "thresholds"},
-                "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": None}, {"color": "red", "value": 1}]},
+                "thresholds": {"mode": "absolute", "steps": [{"color": COLORS["healthy"], "value": None}, {"color": COLORS["critical"], "value": 1}]},
             },
             "overrides": [],
         },
@@ -1577,19 +1693,12 @@ def website():
         }
     )
     cards = [
-        stat(1, "Total", f"count({success}) or vector(0)", 0, 0, w=5),
-        stat(2, "UP", f"count({success} == 1) or vector(0)", 5, 0, w=5),
-        stat(3, "DOWN", f"count({success} == 0) or vector(0)", 10, 0, w=5),
-        stat(4, "SLOW", f"count({duration} > 5) or vector(0)", 15, 0, w=4, description="Answered, but slower than 5 seconds."),
-        stat(5, "SSL Expiring", f'count(((probe_ssl_earliest_cert_expiry{{job="blackbox-http",{W}}} - time()) < 14 * 24 * 3600) and (probe_ssl_earliest_cert_expiry{{job="blackbox-http",{W}}} > 0)) or vector(0)', 19, 0, w=5, description="Certificates with fewer than 14 days left."),
+        tone(stat(1, "Total", f"count({success}) or vector(0)", 0, 0, w=5, h=5), "info"),
+        tone(stat(2, "UP", f"count({success} == 1) or vector(0)", 5, 0, w=5, h=5), "good"),
+        tone(stat(3, "DOWN", f"count({success} == 0) or vector(0)", 10, 0, w=5, h=5), "bad"),
+        tone(stat(4, "SLOW", f"count({duration} > 5) or vector(0)", 15, 0, w=4, h=5, description="Answered, but slower than 5 seconds."), "warn"),
+        tone(stat(5, "SSL Expiring", f'count(((probe_ssl_earliest_cert_expiry{{job="blackbox-http",{W}}} - time()) < 14 * 24 * 3600) and (probe_ssl_earliest_cert_expiry{{job="blackbox-http",{W}}} > 0)) or vector(0)', 19, 0, w=5, h=5, description="Certificates with fewer than 14 days left."), "warn"),
     ]
-    for item in cards:
-        if item["title"] == "DOWN":
-            item["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "green", "value": None}, {"color": "red", "value": 1}]
-        elif item["title"] in {"SLOW", "SSL Expiring"}:
-            item["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "green", "value": None}, {"color": "orange", "value": 1}]
-        elif item["title"] == "UP":
-            item["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "red", "value": None}, {"color": "green", "value": 1}]
 
     code_cards = []
     code_specs = [
@@ -1613,11 +1722,11 @@ def website():
             description="404 stays UP: several APIs have no route at /.",
         )
         if code == 200:
-            panel["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "red", "value": None}, {"color": "green", "value": 1}]
+            panel["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": COLORS["critical"], "value": None}, {"color": COLORS["healthy"], "value": 1}]
         elif bad:
-            panel["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "green", "value": None}, {"color": "red", "value": 1}]
+            panel["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": COLORS["healthy"], "value": None}, {"color": COLORS["critical"], "value": 1}]
         else:
-            panel["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "green", "value": None}, {"color": "yellow", "value": 1}]
+            panel["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": COLORS["healthy"], "value": None}, {"color": COLORS["warning"], "value": 1}]
         code_cards.append(panel)
 
     reason_override = {
@@ -1641,11 +1750,11 @@ def website():
                 "value": {
                     "mode": "absolute",
                     "steps": [
-                        {"color": "red", "value": None},
-                        {"color": "green", "value": 200},
-                        {"color": "blue", "value": 300},
-                        {"color": "orange", "value": 400},
-                        {"color": "red", "value": 500},
+                        {"color": COLORS["critical"], "value": None},
+                        {"color": COLORS["healthy"], "value": 200},
+                        {"color": COLORS["accent"], "value": 300},
+                        {"color": COLORS["warning"], "value": 400},
+                        {"color": COLORS["critical"], "value": 500},
                     ],
                 },
             },
@@ -1694,10 +1803,10 @@ def website():
             {
                 "id": "mappings",
                 "value": [
-                    {"type": "value", "options": {"-1": {"text": "No certificate", "color": "red", "index": 0}}},
-                    {"type": "range", "options": {"from": 0, "to": 3, "result": {"text": "Critical", "color": "red"}}},
-                    {"type": "range", "options": {"from": 3, "to": 14, "result": {"text": "Expiring", "color": "orange"}}},
-                    {"type": "range", "options": {"from": 14, "to": 10000, "result": {"text": "OK", "color": "green"}}},
+                    {"type": "value", "options": {"-1": {"text": "No certificate", "color": COLORS["critical"], "icon": "times-circle", "index": 0}}},
+                    {"type": "range", "options": {"from": 0, "to": 3, "result": {"text": "Critical", "color": COLORS["critical"], "icon": "exclamation-circle"}}},
+                    {"type": "range", "options": {"from": 3, "to": 14, "result": {"text": "Expiring", "color": COLORS["warning"], "icon": "exclamation-triangle"}}},
+                    {"type": "range", "options": {"from": 14, "to": 10000, "result": {"text": "OK", "color": COLORS["healthy"], "icon": "check-circle"}}},
                 ],
             },
             {"id": "custom.cellOptions", "value": {"mode": "basic", "type": "color-background"}},
@@ -1748,7 +1857,7 @@ def website():
                     {"id": "custom.width", "value": 220},
                     {
                         "id": "mappings",
-                        "value": [{"type": "value", "options": {"0": {"text": "No certificate", "color": "red", "index": 0}}}],
+                        "value": [{"type": "value", "options": {"0": {"text": "No certificate", "color": COLORS["critical"], "icon": "times-circle", "index": 0}}}],
                     },
                 ],
             },
@@ -1763,7 +1872,7 @@ def website():
         {
             "id": 30,
             "type": "text",
-            "gridPos": {"h": 3, "w": 24, "x": 0, "y": 4},
+            "gridPos": {"h": 2, "w": 24, "x": 0, "y": 5},
             "options": {
                 "mode": "markdown",
                 "content": (
@@ -1876,15 +1985,8 @@ def alerts_logs():
     )
     web_sel = 'alertstate="firing",category=~"website|ssl"'
     srv_sel = 'alertstate="firing",category!~"website|ssl"'
-    severity_map = [{
-        "type": "value",
-        "options": {
-            "critical": {"text": "critical", "color": "red"},
-            "warning": {"text": "warning", "color": "orange"},
-        },
-    }]
     alert_overrides = [
-        color_override("Severity", severity_map, width=120),
+        color_override("Severity", SEVERITY_MAP, width=120),
         unit_override("Started", "dateTimeAsIso", 0, 190),
         unit_override("Duration", "s", 0, 130),
         {
@@ -1928,22 +2030,22 @@ def alerts_logs():
         )
 
     panels = [
-        stat(1, "Critical", 'count(ALERTS{alertstate="firing",severity="critical"}) or vector(0)', 0, 0, w=6),
-        stat(2, "Warning", 'count(ALERTS{alertstate="firing",severity="warning"}) or vector(0)', 6, 0, w=6),
-        stat(3, "Website alerts", 'count(ALERTS{alertstate="firing",category=~"website|ssl"}) or vector(0)', 12, 0, w=6),
-        stat(4, "Server alerts", 'count(ALERTS{alertstate="firing",category!~"website|ssl"}) or vector(0)', 18, 0, w=6, description="Server, CPU, memory, disk, and monitoring-stack alerts."),
+        tone(stat(1, "Critical", 'count(ALERTS{alertstate="firing",severity="critical"}) or vector(0)', 0, 0, w=6, h=5), "bad"),
+        tone(stat(2, "Warning", 'count(ALERTS{alertstate="firing",severity="warning"}) or vector(0)', 6, 0, w=6, h=5), "warn"),
+        tone(stat(3, "Website alerts", 'count(ALERTS{alertstate="firing",category=~"website|ssl"}) or vector(0)', 12, 0, w=6, h=5), "bad"),
+        tone(stat(4, "Server alerts", 'count(ALERTS{alertstate="firing",category!~"website|ssl"}) or vector(0)', 18, 0, w=6, h=5, description="Server, CPU, memory, disk, and monitoring-stack alerts."), "bad"),
         {
             "id": 7,
             "type": "text",
-            "gridPos": {"h": 3, "w": 24, "x": 0, "y": 4},
+            "gridPos": {"h": 2, "w": 24, "x": 0, "y": 5},
             "options": {
                 "mode": "markdown",
                 "content": "Website alerts and server alerts are separate. Below that, each server has its own logs, and each service has its own panel.",
             },
         },
-        row(8, "ALERTS BY WEBSITE", 7),
+        row(8, "Alerts by website", 7),
         alert_table(9, "Website alerts", 8, web_sel, "No website alerts", "One row per firing website or SSL alert."),
-        row(10, "ALERTS BY SERVER", 17),
+        row(10, "Alerts by server", 17),
         alert_table(11, "Server alerts", 18, srv_sel, "No server alerts", "Server alerts appear here. The row says so when none are firing."),
     ]
     log_groups = [
@@ -1980,10 +2082,6 @@ def alerts_logs():
             ))
             pid += 1
             y += 7
-    panels[0]["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "green", "value": None}, {"color": "red", "value": 1}]
-    panels[1]["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "green", "value": None}, {"color": "orange", "value": 1}]
-    panels[2]["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "green", "value": None}, {"color": "red", "value": 1}]
-    panels[3]["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "green", "value": None}, {"color": "red", "value": 1}]
     dash["panels"] = panels
     return dash
 
@@ -2020,20 +2118,260 @@ def fill_custom_options(dash):
         var["options"] = options
 
 
+DB_SERVICES = (
+    "mysql.service|mariadb.service|postgresql@16-main.service|"
+    "redis.service|redis-server.service"
+)
+DOCKER_UNIT = "docker.service"
+
+
+def server_monitoring():
+    dash = shell()
+    dash.update(
+        {
+            "uid": "server-monitoring",
+            "title": "Server Monitoring",
+            "description": "Landing page for the monitoring dashboards.",
+            "tags": ["operations", "servers"],
+            "templating": {"list": []},
+        }
+    )
+    panels = [
+        note(
+            1,
+            "Start with the cards, then open a section from the links at the top of the page.\n\n"
+            "**Needs another integration:** Docker container CPU, memory, and restarts need cAdvisor. "
+            "Database query rates and connections need a database exporter. "
+            "Backup success is not collected. Those three pages say so instead of showing a false healthy state.",
+            0,
+            3,
+        )
+    ]
+    cards, _pid, y = kpi_panels(2, 3)
+    panels.extend(cards)
+    panels.extend([
+        row(20, "Servers", y),
+        server_table(21, "Server health", y + 1, 8, ""),
+    ])
+    dash["panels"] = panels
+    return dash
+
+
+def network_monitoring():
+    dash = shell()
+    sel = ',server=~"^(?:${server})$"'
+    job = job_metrics(sel)["job"]
+    dash.update(
+        {
+            "uid": "network-monitoring",
+            "title": "Network Monitoring",
+            "description": "Traffic, errors, and drops on real interfaces. Loopback and container bridges are excluded.",
+            "tags": ["operations", "network"],
+            "templating": {"list": [server_variable()]},
+        }
+    )
+    charts = [
+        ("Download", f'sum by (server) (rate(node_network_receive_bytes_total{{{NET_DEV},{job}}}[5m]))', "Bps", "Traffic arriving at the server, excluding loopback and Docker bridges."),
+        ("Upload", f'sum by (server) (rate(node_network_transmit_bytes_total{{{NET_DEV},{job}}}[5m]))', "Bps", "Traffic leaving the server, excluding loopback and Docker bridges."),
+        ("Network errors", f'sum by (server) (rate(node_network_receive_errs_total{{{NET_DEV},{job}}}[5m]) + rate(node_network_transmit_errs_total{{{NET_DEV},{job}}}[5m]))', "ops", "Receive and transmit errors per second on real interfaces."),
+        ("Dropped packets", f'sum by (server) (rate(node_network_receive_drop_total{{{NET_DEV},{job}}}[5m]) + rate(node_network_transmit_drop_total{{{NET_DEV},{job}}}[5m]))', "ops", "Receive and transmit drops per second. Occasional drops can be normal; a sustained rise is not."),
+    ]
+    panels = [
+        note(1, "These charts use the same interface filter as Server details. Docker bridge and loopback traffic is hidden so the host link is visible.", 0, 2)
+    ]
+    y = 2
+    pid = 2
+    for index, (title, expr, unit, description) in enumerate(charts):
+        x = 0 if index % 2 == 0 else 12
+        if index and x == 0:
+            y += 9
+        panels.append(timeseries(pid, title, expr, x, y, 12, 9, unit, description))
+        pid += 1
+    dash["panels"] = panels
+    return dash
+
+
+def database_monitoring():
+    dash = shell()
+    sel = ',server=~"^(?:${server})$"'
+    dash.update(
+        {
+            "uid": "database-monitoring",
+            "title": "Database Monitoring",
+            "description": "Shows whether database services are running. Query and connection metrics are not collected.",
+            "tags": ["operations", "database"],
+            "templating": {"list": [server_variable()]},
+        }
+    )
+    dash["panels"] = [
+        note(
+            1,
+            "This page shows MySQL, MariaDB, PostgreSQL, and Redis only when those systemd units are installed. "
+            "A missing product is not listed and is not treated as failed. "
+            "**Needs a database exporter** for connections, queries per second, replication, and slow queries. Those metrics are not in this stack.",
+            0,
+            3,
+        ),
+        service_table(2, "Database services", 3, 10, sel, DB_SERVICES),
+    ]
+    return dash
+
+
+def docker_monitoring():
+    dash = shell()
+    sel = ',server=~"^(?:${server})$"'
+    dash.update(
+        {
+            "uid": "docker-monitoring",
+            "title": "Docker Monitoring",
+            "description": "Shows whether the Docker service is running. Per-container metrics require cAdvisor.",
+            "tags": ["operations", "docker"],
+            "templating": {"list": [server_variable()]},
+        }
+    )
+    dash["panels"] = [
+        note(
+            1,
+            "**Needs cAdvisor.** Container CPU, memory, restarts, and status are not collected. "
+            "Installing cAdvisor on each server and adding a Prometheus scrape job is required before those panels can exist. "
+            "The table below is only the Docker systemd service.",
+            0,
+            3,
+        ),
+        service_table(2, "Docker service", 3, 8, sel, DOCKER_UNIT),
+    ]
+    return dash
+
+
+def backup_monitoring():
+    dash = shell()
+    dash.update(
+        {
+            "uid": "backup-monitoring",
+            "title": "Backup Monitoring",
+            "description": "No backup metrics are collected. This page does not mean backups are healthy.",
+            "tags": ["operations", "backup"],
+            "templating": {"list": []},
+        }
+    )
+    dash["panels"] = [
+        note(
+            1,
+            "**Needs a backup integration.** Prometheus is not scraping restic, borg, duplicity, or a backup job exporter. "
+            "There is no success, age, or size series to graph. An empty chart here would look like a healthy backup, so this page stays explanatory.\n\n"
+            "To add it later, expose a backup success metric and a Prometheus scrape job, then add panels in `scripts/build_dashboards.py`.",
+            0,
+            6,
+        )
+    ]
+    return dash
+
+
+def monitoring_health():
+    dash = shell()
+    dash.update(
+        {
+            "uid": "monitoring-health",
+            "title": "Monitoring System Health",
+            "description": "Whether Prometheus, Grafana, Blackbox, Alertmanager, and Loki are answering.",
+            "tags": ["operations", "monitoring"],
+            "templating": {"list": []},
+        }
+    )
+    panels = [note(
+        1,
+        "Each card is the scrape result for that component. Down means Prometheus could not collect its metrics. This is the monitoring host, not the three application servers.",
+        0,
+        2,
+    )]
+    panels.extend(stack_stats(2, 2))
+    panels.append(timeseries(
+        8,
+        "Component up",
+        'up{job=~"prometheus|blackbox-exporter|alertmanager|grafana|loki"}',
+        0,
+        6,
+        24,
+        9,
+        "none",
+        "1 is up and 0 is down.",
+        decimals=0,
+        maximum=1,
+        legend="{{job}}",
+        color_names=["prometheus", "blackbox-exporter", "alertmanager", "grafana", "loki"],
+    ))
+    dash["panels"] = panels
+    return dash
+
+
+def validate_dashboard(dash):
+    ids = []
+
+    def walk(panels):
+        for panel in panels or []:
+            pid = panel.get("id")
+            if not isinstance(pid, int):
+                raise SystemExit(f"{dash['title']} has a panel without an integer id")
+            if pid in ids:
+                raise SystemExit(f"{dash['title']} reuses panel id {pid}")
+            ids.append(pid)
+            grid = panel.get("gridPos") or {}
+            if grid.get("w", 0) < 1 or grid.get("x", 0) + grid.get("w", 0) > 24:
+                raise SystemExit(f"{dash['title']} panel {pid} does not fit the 24-column grid")
+            if not panel.get("type"):
+                raise SystemExit(f"{dash['title']} panel {pid} has no type")
+            walk(panel.get("panels"))
+
+    if dash.get("schemaVersion") != SCHEMA_VERSION:
+        raise SystemExit(f"{dash['title']} schemaVersion must be {SCHEMA_VERSION}")
+    walk(dash.get("panels"))
+    suffix = f" Visual theme: {THEME['name']}."
+    description = dash.get("description") or ""
+    if suffix not in description:
+        dash["description"] = (description + suffix).strip()
+
+
+def existing_promql():
+    found = []
+    if not OUT.exists():
+        return found
+    for path in sorted(OUT.glob("*.json")):
+        dash = json.loads(path.read_text())
+        found.extend(expr for _title, _panel, expr in promql_from(dash))
+    return found
+
+
 def main():
+    previous = existing_promql()
     dashboards = {
+        "server-monitoring.json": server_monitoring(),
         "infrastructure-overview.json": infrastructure(),
         "server-detail.json": server_detail(),
+        "docker-monitoring.json": docker_monitoring(),
+        "database-monitoring.json": database_monitoring(),
+        "network-monitoring.json": network_monitoring(),
         "website-monitoring.json": website(),
         "alerts-logs.json": alerts_logs(),
+        "backup-monitoring.json": backup_monitoring(),
+        "monitoring-health.json": monitoring_health(),
     }
-    OUT.mkdir(parents=True, exist_ok=True)
     queries = []
-    for name, dash in dashboards.items():
+    for dash in dashboards.values():
         fill_custom_options(dash)
+        validate_dashboard(dash)
+        queries.extend(promql_from(dash))
+    current = {expr for _title, _panel, expr in queries}
+    missing = [expr for expr in previous if expr not in current]
+    if missing:
+        raise SystemExit(
+            "Refusing to write dashboards because existing PromQL would be dropped:\n"
+            + "\n".join(missing[:8])
+        )
+    OUT.mkdir(parents=True, exist_ok=True)
+    for name, dash in dashboards.items():
         path = OUT / name
         path.write_text(json.dumps(dash, indent=2) + "\n")
-        queries.extend(promql_from(dash))
+        json.loads(path.read_text())
         print(f"wrote {path}")
     query_path = ROOT / "scripts" / ".dashboard-queries.txt"
     lines = []
@@ -2041,6 +2379,7 @@ def main():
         lines.append(f"# {title} :: {panel}\n{expr}\n")
     query_path.write_text("\n".join(lines))
     print(f"queries {len(queries)}")
+    print(f"theme {THEME['name']}")
 
 
 if __name__ == "__main__":

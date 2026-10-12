@@ -565,7 +565,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 240
+                "value": 280
               },
               {
                 "id": "mappings",
@@ -586,10 +586,10 @@
                         "text": "SSL expires within 3 days"
                       },
                       "ServerDown": {
-                        "text": "Server is down"
+                        "text": "Server is offline"
                       },
                       "NodeExporterDown": {
-                        "text": "Node Exporter is down"
+                        "text": "Metrics exporter is offline"
                       },
                       "HighCPU": {
                         "text": "CPU above 80%"
@@ -610,13 +610,34 @@
                         "text": "Disk above 90%"
                       },
                       "HighLoad": {
-                        "text": "Load is high"
+                        "text": "Load is above CPU capacity"
                       },
                       "HighSwap": {
                         "text": "Swap above 50%"
                       },
                       "MonitoringComponentDown": {
                         "text": "Monitoring component is down"
+                      },
+                      "ServiceFailed": {
+                        "text": "A service has failed"
+                      },
+                      "ServiceStopped": {
+                        "text": "A service is stopped"
+                      },
+                      "DiskFillingSoon": {
+                        "text": "A disk may fill within 14 days"
+                      },
+                      "NetworkErrors": {
+                        "text": "Network errors are high"
+                      },
+                      "ServerRebooted": {
+                        "text": "Server rebooted"
+                      },
+                      "MonitoringDataStale": {
+                        "text": "Monitoring data is stale"
+                      },
+                      "ZombieProcesses": {
+                        "text": "Many zombie processes"
                       }
                     }
                   }
@@ -870,7 +891,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 240
+                "value": 280
               },
               {
                 "id": "mappings",
@@ -891,10 +912,10 @@
                         "text": "SSL expires within 3 days"
                       },
                       "ServerDown": {
-                        "text": "Server is down"
+                        "text": "Server is offline"
                       },
                       "NodeExporterDown": {
-                        "text": "Node Exporter is down"
+                        "text": "Metrics exporter is offline"
                       },
                       "HighCPU": {
                         "text": "CPU above 80%"
@@ -915,13 +936,34 @@
                         "text": "Disk above 90%"
                       },
                       "HighLoad": {
-                        "text": "Load is high"
+                        "text": "Load is above CPU capacity"
                       },
                       "HighSwap": {
                         "text": "Swap above 50%"
                       },
                       "MonitoringComponentDown": {
                         "text": "Monitoring component is down"
+                      },
+                      "ServiceFailed": {
+                        "text": "A service has failed"
+                      },
+                      "ServiceStopped": {
+                        "text": "A service is stopped"
+                      },
+                      "DiskFillingSoon": {
+                        "text": "A disk may fill within 14 days"
+                      },
+                      "NetworkErrors": {
+                        "text": "Network errors are high"
+                      },
+                      "ServerRebooted": {
+                        "text": "Server rebooted"
+                      },
+                      "MonitoringDataStale": {
+                        "text": "Monitoring data is stale"
+                      },
+                      "ZombieProcesses": {
+                        "text": "Many zombie processes"
                       }
                     }
                   }

@@ -46,10 +46,14 @@ LINKS = [
 
 W = 'website=~"^(?:${website})$"'
 SERVICES = (
-    "apache2.service|nginx.service|mysql.service|"
+    "apache2.service|nginx.service|mysql.service|mariadb.service|"
+    "postgresql@16-main.service|"
     "php8.2-fpm.service|php8.3-fpm.service|php8.4-fpm.service|"
-    "docker.service|postgresql.service"
+    "docker.service|redis.service|redis-server.service|ssh.service"
 )
+FS_MATCH = 'fstype!~"tmpfs|devtmpfs|overlay|squashfs|aufs",mountpoint!~"/boot/efi"'
+DISK_DEV = 'device=~"sd.*|vd.*|nvme.*|xvd.*|mmcblk.*"'
+NET_DEV = 'device!~"lo|veth.*|docker.*|br-.*|cali.*|flannel.*|cni.*|virbr.*"'
 
 
 def named(expr, name, gate="website"):
@@ -147,9 +151,78 @@ SERVICE_MAP = [
     {
         "type": "value",
         "options": {
-            "0": {"text": "INACTIVE", "color": "orange", "index": 0},
-            "1": {"text": "FAILED", "color": "red", "index": 1},
-            "2": {"text": "RUNNING", "color": "green", "index": 2},
+            "0": {"text": "Stopped", "color": "orange", "index": 0},
+            "1": {"text": "Failed", "color": "red", "index": 1},
+            "2": {"text": "Running", "color": "green", "index": 2},
+        },
+    }
+]
+
+HEALTH_MAP = [
+    {
+        "type": "value",
+        "options": {
+            "0": {"text": "Offline", "color": "red", "index": 0},
+            "1": {"text": "Critical", "color": "red", "index": 1},
+            "2": {"text": "Warning", "color": "orange", "index": 2},
+            "3": {"text": "Healthy", "color": "green", "index": 3},
+            "4": {"text": "No Data", "color": "blue", "index": 4},
+        },
+    }
+]
+
+SERVICE_NAME_MAP = [
+    {
+        "type": "value",
+        "options": {
+            "apache2": {"text": "Apache", "index": 0},
+            "nginx": {"text": "Nginx", "index": 1},
+            "mysql": {"text": "MySQL", "index": 2},
+            "mariadb": {"text": "MariaDB", "index": 3},
+            "postgresql@16-main": {"text": "PostgreSQL", "index": 4},
+            "php8.2-fpm": {"text": "PHP 8.2", "index": 5},
+            "php8.3-fpm": {"text": "PHP 8.3", "index": 6},
+            "php8.4-fpm": {"text": "PHP 8.4", "index": 7},
+            "docker": {"text": "Docker", "index": 8},
+            "redis": {"text": "Redis", "index": 9},
+            "redis-server": {"text": "Redis", "index": 10},
+            "ssh": {"text": "SSH", "index": 11},
+        },
+    }
+]
+
+PERCENT_STEPS = [
+    {"color": "green", "value": None},
+    {"color": "orange", "value": 80},
+    {"color": "red", "value": 90},
+]
+
+ALERT_TEXT_MAP = [
+    {
+        "type": "value",
+        "options": {
+            "WebsiteDown": {"text": "Website is down"},
+            "WebsiteSlow": {"text": "Website is slow"},
+            "SSLCertificateExpiringSoon": {"text": "SSL expires within 14 days"},
+            "SSLCertificateCritical": {"text": "SSL expires within 3 days"},
+            "ServerDown": {"text": "Server is offline"},
+            "NodeExporterDown": {"text": "Metrics exporter is offline"},
+            "HighCPU": {"text": "CPU above 80%"},
+            "CriticalCPU": {"text": "CPU above 95%"},
+            "HighMemory": {"text": "Memory above 80%"},
+            "CriticalMemory": {"text": "Memory above 90%"},
+            "HighDisk": {"text": "Disk above 80%"},
+            "CriticalDisk": {"text": "Disk above 90%"},
+            "HighLoad": {"text": "Load is above CPU capacity"},
+            "HighSwap": {"text": "Swap above 50%"},
+            "MonitoringComponentDown": {"text": "Monitoring component is down"},
+            "ServiceFailed": {"text": "A service has failed"},
+            "ServiceStopped": {"text": "A service is stopped"},
+            "DiskFillingSoon": {"text": "A disk may fill within 14 days"},
+            "NetworkErrors": {"text": "Network errors are high"},
+            "ServerRebooted": {"text": "Server rebooted"},
+            "MonitoringDataStale": {"text": "Monitoring data is stale"},
+            "ZombieProcesses": {"text": "Many zombie processes"},
         },
     }
 ]
@@ -174,6 +247,90 @@ def unit_override(field, unit, decimals, width=None):
     if width:
         props.append({"id": "custom.width", "value": width})
     return {"matcher": {"id": "byName", "options": field}, "properties": props}
+
+
+def heat_override(field, width):
+    return {
+        "matcher": {"id": "byName", "options": field},
+        "properties": [
+            {"id": "unit", "value": "percent"},
+            {"id": "decimals", "value": 0},
+            {"id": "min", "value": 0},
+            {"id": "max", "value": 100},
+            {"id": "custom.width", "value": width},
+            {"id": "color", "value": {"mode": "thresholds"}},
+            {"id": "custom.cellOptions", "value": {"type": "color-text", "mode": "basic"}},
+            {"id": "thresholds", "value": {"mode": "absolute", "steps": PERCENT_STEPS}},
+        ],
+    }
+
+
+def tone(panel, kind):
+    if kind == "good":
+        steps = [{"color": "red", "value": None}, {"color": "green", "value": 1}]
+    elif kind == "warn":
+        steps = [{"color": "green", "value": None}, {"color": "orange", "value": 1}]
+    elif kind == "bad":
+        steps = [{"color": "green", "value": None}, {"color": "red", "value": 1}]
+    else:
+        steps = [{"color": "blue", "value": None}]
+    panel["fieldConfig"]["defaults"]["thresholds"] = {"mode": "absolute", "steps": steps}
+    return panel
+
+
+def gauge(pid, title, expr, x, y, w, h, description, unit="percent", maximum=100, decimals=0, steps=None):
+    target = prom("A", expr)
+    target["legendFormat"] = "{{server}}"
+    return {
+        "id": pid,
+        "type": "gauge",
+        "title": title,
+        "description": description,
+        "datasource": DS,
+        "gridPos": {"h": h, "w": w, "x": x, "y": y},
+        "targets": [target],
+        "fieldConfig": {
+            "defaults": {
+                "unit": unit,
+                "min": 0,
+                "max": maximum,
+                "decimals": decimals,
+                "noValue": "No Data",
+                "color": {"mode": "thresholds"},
+                "thresholds": {"mode": "absolute", "steps": steps or PERCENT_STEPS},
+            },
+            "overrides": [],
+        },
+        "options": {
+            "reduceOptions": {"values": False, "calcs": ["lastNotNull"], "fields": ""},
+            "orientation": "auto",
+            "showThresholdLabels": False,
+            "showThresholdMarkers": True,
+            "sizing": "auto",
+        },
+    }
+
+
+def note(pid, content, y, h=3):
+    return {
+        "id": pid,
+        "type": "text",
+        "gridPos": {"h": h, "w": 24, "x": 0, "y": y},
+        "options": {"mode": "markdown", "content": content},
+    }
+
+
+def job_of(selector):
+    return f'job=~"server-0[123]"{selector}'
+
+
+def labelled(expr, issue, next_step, source="server", regex=".+"):
+    return (
+        "max by (server, issue, next_step) ("
+        f'label_replace(label_replace(({expr}), "issue", "{issue}", "{source}", "{regex}"), '
+        f'"next_step", "{next_step}", "server", ".+")'
+        ")"
+    )
 
 
 def table(pid, title, targets, y, h, organize, overrides, sort_field, sort_desc=False, description="", page=False):
@@ -212,9 +369,17 @@ def table(pid, title, targets, y, h, organize, overrides, sort_field, sort_desc=
     }
 
 
-def timeseries(pid, title, expr, x, y, w, h, unit, description=""):
+def timeseries(pid, title, expr, x, y, w, h, unit, description="", decimals=1, maximum=None, thresholds=None):
     target = prom("A", expr, instant=False)
     target["legendFormat"] = "{{server}}"
+    custom = {"drawStyle": "line", "lineWidth": 2, "fillOpacity": 10, "showPoints": "never", "spanNulls": False}
+    defaults = {"unit": unit, "decimals": decimals, "custom": custom}
+    if maximum is not None:
+        defaults["min"] = 0
+        defaults["max"] = maximum
+    if thresholds:
+        defaults["thresholds"] = {"mode": "absolute", "steps": thresholds}
+        custom["thresholdsStyle"] = {"mode": "dashed"}
     return {
         "id": pid,
         "type": "timeseries",
@@ -223,14 +388,7 @@ def timeseries(pid, title, expr, x, y, w, h, unit, description=""):
         "datasource": DS,
         "gridPos": {"h": h, "w": w, "x": x, "y": y},
         "targets": [target],
-        "fieldConfig": {
-            "defaults": {
-                "unit": unit,
-                "decimals": 1,
-                "custom": {"drawStyle": "line", "lineWidth": 2, "fillOpacity": 10, "showPoints": "never", "spanNulls": False},
-            },
-            "overrides": [],
-        },
+        "fieldConfig": {"defaults": defaults, "overrides": []},
         "options": {
             "legend": {"displayMode": "list", "placement": "bottom", "calcs": []},
             "tooltip": {"mode": "multi", "sort": "desc"},
@@ -255,90 +413,373 @@ def shell():
     }
 
 
-def server_metric_exprs(selector):
-    job = f'job=~"server-0[123]"{selector}'
-    swap = f"""
-(
-  (
-    (
-      (node_memory_SwapTotal_bytes{{{job}}} - node_memory_SwapFree_bytes{{{job}}})
-      / node_memory_SwapTotal_bytes{{{job}}}
-    ) * 100
-  )
-  and on(server, environment, instance, job)
-  (node_memory_SwapTotal_bytes{{{job}}} > 0)
-)
-or
-(
-  (node_memory_SwapTotal_bytes{{{job}}} == bool 0) * 0
-)
-""".strip()
+def job_metrics(selector):
+    job = job_of(selector)
+    match = f"{FS_MATCH},{job}"
+    cpu = f'avg by (server, environment) (100 - (rate(node_cpu_seconds_total{{mode="idle",{job}}}[5m]) * 100))'
+    cpu_server = f'avg by (server) (100 - (rate(node_cpu_seconds_total{{mode="idle",{job}}}[5m]) * 100))'
+    memory = (
+        "max by (server, environment) ("
+        f"(1 - (node_memory_MemAvailable_bytes{{{job}}} / node_memory_MemTotal_bytes{{{job}}})) * 100"
+        ")"
+    )
+    memory_server = (
+        "max by (server) ("
+        f"(1 - (node_memory_MemAvailable_bytes{{{job}}} / node_memory_MemTotal_bytes{{{job}}})) * 100"
+        ")"
+    )
+    disk = (
+        "max by (server, environment) (100 * (1 - ("
+        f"node_filesystem_avail_bytes{{{match}}} / node_filesystem_size_bytes{{{match}}}"
+        ")))"
+    )
+    disk_server = (
+        "max by (server) (100 * (1 - ("
+        f"node_filesystem_avail_bytes{{{match}}} / node_filesystem_size_bytes{{{match}}}"
+        ")))"
+    )
+    disk_mount = (
+        "100 * (1 - ("
+        f"node_filesystem_avail_bytes{{{match}}} / node_filesystem_size_bytes{{{match}}}"
+        "))"
+    )
+    root = (
+        "max by (server) (100 * (1 - ("
+        f'node_filesystem_avail_bytes{{mountpoint="/",fstype!~"tmpfs|overlay|squashfs",{job}}}'
+        " / "
+        f'node_filesystem_size_bytes{{mountpoint="/",fstype!~"tmpfs|overlay|squashfs",{job}}}'
+        ")))"
+    )
+    swap = (
+        "max by (server, environment) ("
+        f"(((node_memory_SwapTotal_bytes{{{job}}} - node_memory_SwapFree_bytes{{{job}}}) "
+        f"/ node_memory_SwapTotal_bytes{{{job}}}) * 100 "
+        f"and on(server, environment, instance, job) (node_memory_SwapTotal_bytes{{{job}}} > 0)) "
+        f"or ((node_memory_SwapTotal_bytes{{{job}}} == bool 0) * 0)"
+        ")"
+    )
+    swap_server = (
+        "max by (server) ("
+        "("
+        f"(((node_memory_SwapTotal_bytes{{{job}}} - node_memory_SwapFree_bytes{{{job}}}) "
+        f"/ node_memory_SwapTotal_bytes{{{job}}}) * 100 "
+        f"and (node_memory_SwapTotal_bytes{{{job}}} > 0))"
+        f" or ((node_memory_SwapTotal_bytes{{{job}}} == bool 0) * 0)"
+        ")"
+        ")"
+    )
+    load = f"max by (server, environment) (node_load1{{{job}}})"
+    load_server = f"max by (server) (node_load1{{{job}}})"
+    load_ratio = (
+        "max by (server, environment) ("
+        f"node_load1{{{job}}} / on(server, instance) group_left(environment) "
+        f'count by (server, instance) (node_cpu_seconds_total{{{job},mode="idle"}})'
+        ")"
+    )
+    load_ratio_server = (
+        "max by (server) ("
+        f"node_load1{{{job}}} / on(server, instance) group_left "
+        f'count by (server, instance) (node_cpu_seconds_total{{{job},mode="idle"}})'
+        ")"
+    )
+    cpus = f'count by (server, environment) (node_cpu_seconds_total{{{job},mode="idle"}})'
+    uptime = f"max by (server, environment) (time() - node_boot_time_seconds{{{job}}})"
+    up = f"max by (server, environment) (up{{{job}}})"
+    failed = (
+        "count by (server, environment) ("
+        f'node_systemd_unit_state{{{job},name=~"{SERVICES}",state="failed"}} == 1'
+        ")"
+    )
     return {
-        "up_status": f'max by (server, environment) (up{{{job}}})',
-        "cpu_pct": f'avg by (server, environment) (100 - (rate(node_cpu_seconds_total{{mode="idle",{job}}}[5m]) * 100))',
-        "mem_pct": f'max by (server, environment) ((1 - (node_memory_MemAvailable_bytes{{{job}}} / node_memory_MemTotal_bytes{{{job}}})) * 100)',
-        "swap_pct": f"max by (server, environment) ({swap})",
-        "disk_pct": (
-            "max by (server, environment) (100 * (1 - ("
-            f'node_filesystem_avail_bytes{{mountpoint="/",fstype!~"tmpfs|overlay|squashfs",{job}}}'
-            " / "
-            f'node_filesystem_size_bytes{{mountpoint="/",fstype!~"tmpfs|overlay|squashfs",{job}}}'
-            ")))"
-        ),
-        "load1": f"max by (server, environment) (node_load1{{{job}}})",
-        "uptime_s": f"max by (server, environment) (time() - node_boot_time_seconds{{{job}}})",
+        "job": job,
+        "match": match,
+        "cpu": cpu,
+        "cpu_server": cpu_server,
+        "memory": memory,
+        "memory_server": memory_server,
+        "disk": disk,
+        "disk_server": disk_server,
+        "disk_mount": disk_mount,
+        "root": root,
+        "swap": swap,
+        "swap_server": swap_server,
+        "load": load,
+        "load_server": load_server,
+        "load_ratio": load_ratio,
+        "load_ratio_server": load_ratio_server,
+        "cpus": cpus,
+        "uptime": uptime,
+        "up": up,
+        "failed": failed,
     }
 
 
+def health_expr(selector):
+    m = job_metrics(selector)
+    up = m["up"]
+    cpu = m["cpu"]
+    critical = f'(({cpu}) > 90) or (({m["memory"]}) > 90) or (({m["disk"]}) > 90) or (({m["failed"]}) > 0)'
+    warning = (
+        f'(({cpu}) > 80) or (({m["memory"]}) > 80) or (({m["disk"]}) > 80) '
+        f'or (({m["swap"]}) > 50) or (({m["load_ratio"]}) > 1.5)'
+    )
+    return (
+        f"((({up} == 1) unless on (server, environment) ({cpu})) * 4) "
+        f"or ({up} == 0) "
+        f"or ((({up} == 1) * 1) and on (server, environment) ({critical})) "
+        f"or ((({up} == 1) * 2) and on (server, environment) ({warning})) "
+        f"or (({up} == 1) * 3)"
+    )
+
+
+def attention_expr(selector):
+    m = job_metrics(selector)
+    job = m["job"]
+    days = (
+        "max by (server, mountpoint) ("
+        f"(node_filesystem_avail_bytes{{{m['match']}}} "
+        f"/ (-delta(node_filesystem_avail_bytes{{{m['match']}}}[6h]) * 4)) "
+        f"and (-delta(node_filesystem_avail_bytes{{{m['match']}}}[6h]) > 0)"
+        ")"
+    )
+    parts = [
+        labelled(
+            f"((max by (server) (up{{{job}}})) == bool 0) == 1",
+            "Server is offline",
+            "Prometheus cannot collect metrics. Check power, the network path, and that Node Exporter is running on port 9100.",
+        ),
+        labelled(
+            f"((max by (server) (up{{{job}}}) == 1) unless on (server) ({m['cpu_server']}))",
+            "Metrics are missing",
+            "Node Exporter answers, but CPU metrics are missing, so health cannot be judged.",
+        ),
+        labelled(f"({m['cpu_server']}) > 90", "CPU is above 90 percent", "Almost all CPU time is busy. Find the runaway or stuck program."),
+        labelled(
+            f"((({m['cpu_server']}) > 80) unless (({m['cpu_server']}) > 90))",
+            "CPU is above 80 percent",
+            "CPU is high right now. Check whether a backup, deploy, or application is responsible.",
+        ),
+        labelled(f"({m['memory_server']}) > 90", "Memory is above 90 percent", "RAM is nearly exhausted. Find the program using the most memory before the server starts swapping heavily."),
+        labelled(
+            f"((({m['memory_server']}) > 80) unless (({m['memory_server']}) > 90))",
+            "Memory is above 80 percent",
+            "RAM is getting full. Check application memory and whether cache can be freed.",
+        ),
+        labelled(
+            f"({m['disk_mount']}) > 90",
+            "Disk $1 is above 90 percent",
+            "Free space on this filesystem before applications fail to write.",
+            "mountpoint",
+            ".+",
+        ),
+        labelled(
+            f"((({m['disk_mount']}) > 80) unless (({m['disk_mount']}) > 90))",
+            "Disk $1 is above 80 percent",
+            "This filesystem is filling up. Find what is growing before it becomes critical.",
+            "mountpoint",
+            ".+",
+        ),
+        labelled(
+            f"({m['swap_server']}) > 50",
+            "Swap is above 50 percent",
+            "The server is using disk as extra memory, which is slow. Find the program using the most RAM.",
+        ),
+        labelled(
+            f"({m['load_ratio_server']}) > 1.5",
+            "Load is above CPU capacity",
+            "The 1-minute load is more than 1.5 times the number of CPUs, so work is waiting.",
+        ),
+        labelled(
+            f'node_systemd_unit_state{{{job},name=~"{SERVICES}",state="failed"}} == 1',
+            "Service failed: $1",
+            "This service crashed. Read its log on Alerts and Logs, fix the error, then start it again.",
+            "name",
+            "(.+)",
+        ),
+        labelled(
+            f'node_systemd_unit_state{{{job},name=~"{SERVICES}",state="inactive"}} == 1',
+            "Service stopped: $1",
+            "This service is installed but not running. Start it if it should be up.",
+            "name",
+            "(.+)",
+        ),
+        labelled(
+            f"({days}) < 14",
+            "Disk $1 may fill within 14 days",
+            "At the growth rate of the last 6 hours, this filesystem runs out of space soon. Find the files that are growing.",
+            "mountpoint",
+            ".+",
+        ),
+        labelled(
+            "sum by (server) ("
+            f"rate(node_network_receive_errs_total{{{NET_DEV},{job}}}[5m]) "
+            f"+ rate(node_network_transmit_errs_total{{{NET_DEV},{job}}}[5m])"
+            ") > 1",
+            "Network errors are above 1 per second",
+            "The network interface is reporting errors. Check the link and recent network changes.",
+        ),
+        labelled(
+            "sum by (server) ("
+            f"rate(node_network_receive_drop_total{{{NET_DEV},{job}}}[5m]) "
+            f"+ rate(node_network_transmit_drop_total{{{NET_DEV},{job}}}[5m])"
+            ") > 1",
+            "Dropped packets are above 1 per second",
+            "Packets are being dropped. The server or the network path cannot keep up.",
+        ),
+        labelled(
+            f'(sum by (server) (node_processes_state{{{job},state="Z"}})) >= 10',
+            "Many zombie processes",
+            "Ten or more finished programs were not collected by their parent. Find the application that is leaving them behind.",
+        ),
+        labelled(
+            f'(sum by (server) (node_processes_state{{{job},state="D"}})) >= 5',
+            "Processes are stuck on disk",
+            "Several programs are waiting on disk. Check disk busy time and the application log.",
+        ),
+        labelled(
+            f"(max by (server) (changes(node_boot_time_seconds{{{job}}}[30m]))) > 0",
+            "Server rebooted in the last 30 minutes",
+            "Confirm the reboot was planned and that web, database, and Docker services came back.",
+        ),
+    ]
+    return "\nor\n".join(parts)
+
+
+def filesystem_exprs(selector):
+    match = job_metrics(selector)["match"]
+    size = f"max by (server, mountpoint) (node_filesystem_size_bytes{{{match}}})"
+    free = f"max by (server, mountpoint) (node_filesystem_avail_bytes{{{match}}})"
+    used = (
+        "max by (server, mountpoint) ("
+        f"node_filesystem_size_bytes{{{match}}} - node_filesystem_avail_bytes{{{match}}}"
+        ")"
+    )
+    pct = (
+        "max by (server, mountpoint) (100 * (1 - ("
+        f"node_filesystem_avail_bytes{{{match}}} / node_filesystem_size_bytes{{{match}}}"
+        ")))"
+    )
+    daily = f"max by (server, mountpoint) (-delta(node_filesystem_avail_bytes{{{match}}}[6h]))"
+    days = (
+        "("
+        "max by (server, mountpoint) ("
+        f"(node_filesystem_avail_bytes{{{match}}} / (-delta(node_filesystem_avail_bytes{{{match}}}[6h]) * 4)) "
+        f"and (-delta(node_filesystem_avail_bytes{{{match}}}[6h]) > 0)"
+        ")"
+        ") or ("
+        f"(max by (server, mountpoint) (node_filesystem_size_bytes{{{match}}} * 0 + 1000000)) "
+        "unless on (server, mountpoint) "
+        f"(-delta(node_filesystem_avail_bytes{{{match}}}[6h]) > 0)"
+        ")"
+    )
+    return {
+        "size_bytes": size,
+        "free_bytes": free,
+        "used_bytes": used,
+        "used_pct": pct,
+        "daily_bytes": daily,
+        "days_left": days,
+    }
+
+
+def proc_count(selector, state):
+    job = job_of(selector)
+    return (
+        f'(sum by (server) (node_processes_state{{{job},state="{state}"}})) '
+        f"or (max by (server) (up{{{job}}}) * 0)"
+    )
+
+
+def show_each(panel):
+    panel["targets"][0]["legendFormat"] = "{{server}}"
+    panel["options"]["reduceOptions"]["values"] = True
+    panel["options"]["textMode"] = "value_and_name"
+    return panel
+
+
 def server_table(pid, title, y, h, selector):
-    exprs = server_metric_exprs(selector)
-    refs = []
-    for ref, (metric, expr) in zip("ABCDEFG", exprs.items()):
-        refs.append(prom(ref, named(expr, metric, "server")))
+    m = job_metrics(selector)
+    job = m["job"]
+    identity = label_replace_up(job)
+    pieces = [
+        ("A", named(identity, "up_status", "server")),
+        ("B", named(f"max by (server, environment, nodename) (node_uname_info{{{job}}})", "hostname_ok", "server")),
+        ("C", named(f"max by (server, environment, pretty_name) (node_os_info{{{job}}})", "os_ok", "server")),
+        ("D", named(health_expr(selector), "health", "server")),
+        ("E", named(m["cpu"], "cpu_pct", "server")),
+        ("F", named(m["memory"], "mem_pct", "server")),
+        ("G", named(m["disk"], "disk_pct", "server")),
+        ("H", named(m["load"], "load1", "server")),
+        ("I", named(m["cpus"], "cpu_count", "server")),
+        ("J", named(m["uptime"], "uptime_s", "server")),
+    ]
     organize = {
         "join": ["server", "environment"],
-        "exclude": {"instance": True, "job": True, "Time": True, "__name__": True, "mountpoint": True, "fstype": True, "device": True},
+        "exclude": {
+            "instance": True,
+            "job": True,
+            "Time": True,
+            "__name__": True,
+            "up_status": True,
+            "hostname_ok": True,
+            "os_ok": True,
+            "mountpoint": True,
+            "fstype": True,
+            "device": True,
+        },
         "index": {
             "server": 0,
-            "environment": 1,
-            "up_status": 2,
-            "cpu_pct": 3,
-            "mem_pct": 4,
-            "swap_pct": 5,
-            "disk_pct": 6,
-            "load1": 7,
-            "uptime_s": 8,
+            "nodename": 1,
+            "ip": 2,
+            "pretty_name": 3,
+            "environment": 4,
+            "health": 5,
+            "cpu_pct": 6,
+            "mem_pct": 7,
+            "disk_pct": 8,
+            "load1": 9,
+            "cpu_count": 10,
+            "uptime_s": 11,
         },
         "rename": {
             "server": "Server",
+            "nodename": "Hostname",
+            "ip": "IP address",
+            "pretty_name": "Operating system",
             "environment": "Environment",
-            "up_status": "Status",
+            "health": "Health",
             "cpu_pct": "CPU",
             "mem_pct": "Memory",
-            "swap_pct": "Swap",
             "disk_pct": "Disk",
             "load1": "Load",
+            "cpu_count": "CPUs",
             "uptime_s": "Uptime",
         },
     }
     panel = table(
         pid,
         title,
-        refs,
+        [prom(ref, expr) for ref, expr in pieces],
         y,
         h,
         organize,
         [
-            color_override("Status", UP_MAP, decimals=0, width=110),
-            unit_override("CPU", "percent", 0, 90),
-            unit_override("Memory", "percent", 0, 100),
-            unit_override("Swap", "percent", 0, 90),
-            unit_override("Disk", "percent", 0, 90),
-            unit_override("Load", "none", 2, 90),
+            color_override("Health", HEALTH_MAP, decimals=0, width=120),
+            heat_override("CPU", 90),
+            heat_override("Memory", 100),
+            heat_override("Disk", 90),
+            unit_override("Load", "none", 2, 80),
+            unit_override("CPUs", "none", 0, 70),
             unit_override("Uptime", "s", 0, 140),
         ],
-        "Server",
-        description="One row per server. Open Server Detail from a server name.",
+        "Health",
+        description=(
+            "One row per server. Health is Healthy when CPU, memory, and disk are under 80%, "
+            "swap is under 50%, and load is within CPU capacity. Warning means one of those is high. "
+            "Critical means a resource is over 90% or a service has failed. Offline means Node Exporter "
+            "cannot be scraped. Disk is the fullest data filesystem, excluding the small EFI partition. "
+            "Open a server name for detail."
+        ),
     )
     panel["fieldConfig"]["overrides"].append(
         {
@@ -348,21 +789,32 @@ def server_table(pid, title, y, h, selector):
                     "id": "links",
                     "value": [
                         {
-                            "title": "Server detail",
+                            "title": "Open server",
                             "url": "/d/server-detail/server-detail?var-server=${__data.fields.Server}",
                             "targetBlank": False,
                         }
                     ],
                 },
-                {"id": "custom.width", "value": 280},
+                {"id": "custom.width", "value": 240},
             ],
         }
     )
+    for field, width in (("Hostname", 130), ("IP address", 140), ("Operating system", 190), ("Environment", 120)):
+        panel["fieldConfig"]["overrides"].append(
+            {"matcher": {"id": "byName", "options": field}, "properties": [{"id": "custom.width", "value": width}]}
+        )
     return panel
 
 
+def label_replace_up(job):
+    return (
+        f'label_replace(max by (server, environment, instance) (up{{{job}}}), '
+        '"ip", "$1", "instance", "([^:]+):.*")'
+    )
+
+
 def service_expr(selector):
-    base = f'name=~"{SERVICES}"{selector}'
+    base = f'{job_of(selector)},name=~"{SERVICES}"'
     expr = f"""
 max by (server, name) (
   (node_systemd_unit_state{{{base}, state="active"}} == 1) * 2
@@ -382,16 +834,327 @@ def service_table(pid, title, y, h, selector):
         "index": {"service": 0, "server": 1, "unit_state": 2},
         "rename": {"service": "Service", "server": "Server", "unit_state": "Status"},
     }
-    return table(
+    panel = table(
         pid,
         title,
         [prom("A", service_expr(selector))],
         y,
         h,
         organize,
-        [color_override("Status", SERVICE_MAP, decimals=0, width=140)],
+        [
+            color_override("Status", SERVICE_MAP, decimals=0, width=140),
+            {
+                "matcher": {"id": "byName", "options": "Service"},
+                "properties": [
+                    {"id": "mappings", "value": SERVICE_NAME_MAP},
+                    {"id": "custom.width", "value": 160},
+                ],
+            },
+        ],
         "Server",
-        description="Services Node Exporter actually reports on these hosts.",
+        description=(
+            "Installed services only. A missing product is not listed and is not treated as healthy or failed. "
+            "Docker shows whether the Docker service is running. Per-container CPU, memory, and restarts are not collected."
+        ),
+    )
+    return panel
+
+
+def attention_table(pid, title, y, h, selector):
+    organize = {
+        "join": ["server", "issue"],
+        "exclude": {"instance": True, "job": True, "Time": True, "__name__": True, "environment": True, "mountpoint": True, "name": True},
+        "index": {"server": 0, "issue": 1, "reading": 2, "next_step": 3},
+        "rename": {
+            "server": "Server",
+            "issue": "What is happening",
+            "reading": "Reading",
+            "next_step": "What to check",
+        },
+    }
+    return table(
+        pid,
+        title,
+        [prom("A", named(attention_expr(selector), "reading", "server"))],
+        y,
+        h,
+        organize,
+        [
+            unit_override("Reading", "none", 1, 110),
+            {
+                "matcher": {"id": "byName", "options": "What is happening"},
+                "properties": [{"id": "custom.width", "value": 320}],
+            },
+            {
+                "matcher": {"id": "byName", "options": "What to check"},
+                "properties": [{"id": "custom.width", "value": 520}],
+            },
+        ],
+        "Server",
+        description=(
+            "A row appears only when a live check is outside its limit. Reading is the current measurement: "
+            "a percent for CPU, memory, disk, and swap; a ratio for load; a count for services and processes; "
+            "errors per second for the network; days for a disk that is filling. An empty table means none of these checks are failing."
+        ),
+    )
+
+
+def filesystem_table(pid, y, selector):
+    exprs = filesystem_exprs(selector)
+    pieces = [(ref, named(exprs[key], key, "server")) for ref, key in zip("ABCDEF", exprs)]
+    organize = {
+        "join": ["server", "mountpoint"],
+        "exclude": {"instance": True, "job": True, "Time": True, "__name__": True, "device": True, "fstype": True, "environment": True},
+        "index": {
+            "server": 0,
+            "mountpoint": 1,
+            "size_bytes": 2,
+            "used_bytes": 3,
+            "free_bytes": 4,
+            "used_pct": 5,
+            "daily_bytes": 6,
+            "days_left": 7,
+        },
+        "rename": {
+            "server": "Server",
+            "mountpoint": "Filesystem",
+            "size_bytes": "Size",
+            "used_bytes": "Used",
+            "free_bytes": "Free",
+            "used_pct": "Used",
+            "daily_bytes": "Change in 6 hours",
+            "days_left": "Days until full",
+        },
+    }
+    # "Used" is used twice if both used_bytes and used_pct rename to Used. Keep percent name distinct.
+    organize["rename"]["used_pct"] = "Used percent"
+    panel = table(
+        pid,
+        "Disk space",
+        [prom(ref, expr) for ref, expr in pieces],
+        y,
+        8,
+        organize,
+        [
+            unit_override("Size", "bytes", 1, 110),
+            unit_override("Used", "bytes", 1, 110),
+            unit_override("Free", "bytes", 1, 110),
+            heat_override("Used percent", 130),
+            unit_override("Change in 6 hours", "bytes", 1, 160),
+            {
+                "matcher": {"id": "byName", "options": "Days until full"},
+                "properties": [
+                    {"id": "unit", "value": "d"},
+                    {"id": "decimals", "value": 0},
+                    {"id": "custom.width", "value": 150},
+                    {
+                        "id": "mappings",
+                        "value": [
+                            {
+                                "type": "range",
+                                "options": {"from": 3650, "to": 2000000, "result": {"text": "Stable", "color": "green"}},
+                            }
+                        ],
+                    },
+                    {
+                        "id": "thresholds",
+                        "value": {
+                            "mode": "absolute",
+                            "steps": [
+                                {"color": "red", "value": None},
+                                {"color": "orange", "value": 14},
+                                {"color": "green", "value": 30},
+                            ],
+                        },
+                    },
+                    {"id": "color", "value": {"mode": "thresholds"}},
+                    {"id": "custom.cellOptions", "value": {"type": "color-text", "mode": "basic"}},
+                ],
+            },
+        ],
+        "Used percent",
+        True,
+        description=(
+            "Important filesystems only. The small EFI partition is hidden because it does not hold application data. "
+            "Change in 6 hours is the real change in used space, not a forecast. Positive means the disk filled. Negative means space was freed. "
+            "Days until full extends that 6-hour change and is shown only while used space is growing. Otherwise it says Stable."
+        ),
+    )
+    return panel
+
+
+def memory_table(pid, y, selector):
+    job = job_of(selector)
+    total = f"max by (server) (node_memory_MemTotal_bytes{{{job}}})"
+    available = f"max by (server) (node_memory_MemAvailable_bytes{{{job}}})"
+    used = f"max by (server) (node_memory_MemTotal_bytes{{{job}}} - node_memory_MemAvailable_bytes{{{job}}})"
+    pct = job_metrics(selector)["memory_server"]
+    pieces = [
+        ("A", named(total, "mem_total", "server")),
+        ("B", named(used, "mem_used", "server")),
+        ("C", named(available, "mem_available", "server")),
+        ("D", named(pct, "mem_pct", "server")),
+    ]
+    return table(
+        pid,
+        "Memory",
+        [prom(ref, expr) for ref, expr in pieces],
+        y,
+        6,
+        {
+            "join": ["server"],
+            "exclude": {"instance": True, "job": True, "Time": True, "__name__": True, "environment": True},
+            "index": {"server": 0, "mem_total": 1, "mem_used": 2, "mem_available": 3, "mem_pct": 4},
+            "rename": {
+                "server": "Server",
+                "mem_total": "Total",
+                "mem_used": "Used",
+                "mem_available": "Available",
+                "mem_pct": "Used percent",
+            },
+        },
+        [
+            unit_override("Total", "bytes", 1, 120),
+            unit_override("Used", "bytes", 1, 120),
+            unit_override("Available", "bytes", 1, 130),
+            heat_override("Used percent", 130),
+        ],
+        "Server",
+        description=(
+            "RAM as the operating system reports it. Available includes memory Linux can reclaim from cache, "
+            "so Used is memory applications cannot have. Values are shown in GiB."
+        ),
+    )
+
+
+def identity_table(pid, y, selector):
+    job = job_of(selector)
+    pieces = [
+        ("A", named(label_replace_up(job), "up_ok", "server")),
+        ("B", named(f"max by (server, nodename, release) (node_uname_info{{{job}}})", "host_ok", "server")),
+        ("C", named(f"max by (server, pretty_name) (node_os_info{{{job}}})", "os_ok", "server")),
+        ("D", named(f"max by (server) (node_boot_time_seconds{{{job}}} * 1000)", "boot_ms", "server")),
+        ("E", named(f"max by (server) (changes(node_boot_time_seconds{{{job}}}[7d]))", "reboots_7d", "server")),
+    ]
+    return table(
+        pid,
+        "Server identity",
+        [prom(ref, expr) for ref, expr in pieces],
+        y,
+        6,
+        {
+            "join": ["server"],
+            "exclude": {
+                "instance": True,
+                "job": True,
+                "Time": True,
+                "__name__": True,
+                "environment": True,
+                "up_ok": True,
+                "host_ok": True,
+                "os_ok": True,
+            },
+            "index": {"server": 0, "nodename": 1, "ip": 2, "pretty_name": 3, "release": 4, "boot_ms": 5, "reboots_7d": 6},
+            "rename": {
+                "server": "Server",
+                "nodename": "Hostname",
+                "ip": "IP address",
+                "pretty_name": "Operating system",
+                "release": "Kernel",
+                "boot_ms": "Last boot",
+                "reboots_7d": "Reboots in 7 days",
+            },
+        },
+        [
+            {
+                "matcher": {"id": "byName", "options": "Last boot"},
+                "properties": [{"id": "unit", "value": "dateTimeFromNow"}, {"id": "custom.width", "value": 160}],
+            },
+            unit_override("Reboots in 7 days", "none", 0, 160),
+        ],
+        "Server",
+        description=(
+            "Hostname and operating system come from the server itself. IP address is the address Prometheus uses to scrape it. "
+            "Last boot is the most recent restart. Reboots in 7 days counts boot-time changes and does not by itself mean the server is unhealthy."
+        ),
+    )
+
+
+def firing_alert_table(pid, y, server_match):
+    selector = f'alertstate="firing",server=~"{server_match}"'
+    kept = f'server=~"{server_match}"'
+    key = f'label_join(ALERTS{{{selector}}}, "alert_key", "/", "alertname", "server", "website", "instance")'
+    started = (
+        f'label_join((ALERTS_FOR_STATE{{{kept}}} * 1000), "alert_key", "/", "alertname", "server", "website", "instance")'
+    )
+    duration = (
+        f'label_join((time() - ALERTS_FOR_STATE{{{kept}}}), "alert_key", "/", "alertname", "server", "website", "instance")'
+    )
+    pieces = [
+        ("A", named(key, "firing", "alertname")),
+        ("B", named(started, "started_ms", "alertname")),
+        ("C", named(duration, "duration_s", "alertname")),
+    ]
+    overrides = [
+        {
+            "matcher": {"id": "byName", "options": "Alert"},
+            "properties": [
+                {"id": "mappings", "value": ALERT_TEXT_MAP},
+                {"id": "custom.width", "value": 280},
+            ],
+        },
+        {
+            "matcher": {"id": "byName", "options": "Severity"},
+            "properties": [
+                {"id": "mappings", "value": [{
+                    "type": "value",
+                    "options": {
+                        "critical": {"text": "Critical", "color": "red"},
+                        "warning": {"text": "Warning", "color": "orange"},
+                    },
+                }]},
+                {"id": "custom.cellOptions", "value": {"mode": "basic", "type": "color-background"}},
+                {"id": "custom.width", "value": 120},
+            ],
+        },
+        unit_override("Started", "dateTimeAsIso", 0, 190),
+        unit_override("How long", "s", 0, 140),
+    ]
+    return table(
+        pid,
+        "How long it has been alerting",
+        [prom(ref, expr) for ref, expr in pieces],
+        y,
+        8,
+        {
+            "join": ["alert_key"],
+            "exclude": {
+                "instance": True,
+                "job": True,
+                "Time": True,
+                "__name__": True,
+                "alert_key": True,
+                "alertstate": True,
+                "category": True,
+                "target": True,
+                "website": True,
+            },
+            "index": {"alertname": 0, "severity": 1, "server": 2, "started_ms": 3, "duration_s": 4},
+            "rename": {
+                "alertname": "Alert",
+                "severity": "Severity",
+                "server": "Server",
+                "started_ms": "Started",
+                "duration_s": "How long",
+            },
+        },
+        overrides,
+        "How long",
+        True,
+        description=(
+            "Prometheus alerts for the selected server. How long is the time since the alert started firing. "
+            "An empty table means this server has no firing alert. Website alerts stay on the website dashboard."
+        ),
     )
 
 
@@ -401,49 +1164,45 @@ def infrastructure():
         {
             "uid": "infrastructure-overview",
             "title": "Infrastructure Overview",
-            "description": "Is everything healthy? Start here, then open the server, website, or logs.",
+            "description": "Start here. Green is healthy, orange needs attention, red is critical or offline.",
             "tags": ["operations", "overview"],
             "templating": {"list": []},
         }
     )
-    crit = 'count(ALERTS{alertstate="firing",severity="critical"}) or vector(0)'
-    warn = 'count(ALERTS{alertstate="firing",severity="warning"}) or vector(0)'
+    health = health_expr("")
     panels = [
-        stat(1, "Total Servers", 'count(up{job=~"server-0[123]"}) or vector(0)', 0, 0, description="Node Exporter targets."),
-        stat(2, "Servers UP", 'count(up{job=~"server-0[123]"} == 1) or vector(0)', 3, 0),
-        stat(3, "Servers DOWN", 'count(up{job=~"server-0[123]"} == 0) or vector(0)', 6, 0),
-        stat(4, "Total Websites", 'count(probe_success{job="blackbox-http"}) or vector(0)', 9, 0),
-        stat(5, "Websites UP", 'count(probe_success{job="blackbox-http"} == 1) or vector(0)', 12, 0),
-        stat(6, "Websites DOWN", 'count(probe_success{job="blackbox-http"} == 0) or vector(0)', 15, 0),
-        stat(7, "Critical Alerts", crit, 18, 0, description="Firing critical alerts."),
-        stat(8, "Warning Alerts", warn, 21, 0),
-        row(9, "SERVER HEALTH", 4),
-        server_table(10, "Servers", 5, 8, ""),
-        row(11, "SERVICES", 13),
-        service_table(12, "Service Status", 14, 10, ""),
-        row(13, "MONITORING STACK", 24),
-        stat(14, "Prometheus", 'up{job="prometheus"}', 0, 25, w=5, h=4, mappings=UP_MAP, no_value="DOWN"),
-        stat(15, "Grafana", 'up{job="grafana"}', 5, 25, w=5, h=4, mappings=UP_MAP, no_value="DOWN"),
-        stat(16, "Blackbox", 'up{job="blackbox-exporter"}', 10, 25, w=5, h=4, mappings=UP_MAP, no_value="DOWN"),
-        stat(17, "Alertmanager", 'up{job="alertmanager"}', 15, 25, w=4, h=4, mappings=UP_MAP, no_value="DOWN"),
-        stat(18, "Loki", 'up{job="loki"}', 19, 25, w=5, h=4, mappings=UP_MAP, no_value="DOWN"),
+        note(
+            1,
+            "Green is healthy. Orange needs a look. Red means a resource is nearly full, a service has failed, or the server is offline. "
+            "Open a server name for memory, disk, network, and what to check next. "
+            "Container CPU and memory are not on this dashboard because cAdvisor is not installed.",
+            0,
+            3,
+        ),
+        tone(stat(2, "Servers", f"count({health}) or vector(0)", 0, 3, w=4, description="Servers Prometheus is configured to scrape."), "info"),
+        tone(stat(3, "Healthy", f"count(({health}) == 3) or vector(0)", 4, 3, w=4, description="CPU, memory, and disk under 80%, swap under 50%, and load within CPU capacity."), "good"),
+        tone(stat(4, "Warnings", f"count(({health}) == 2) or vector(0)", 8, 3, w=4, description="At least one resource is above its warning line."), "warn"),
+        tone(stat(5, "Critical", f"count(({health}) == 1) or vector(0)", 12, 3, w=4, description="A resource is above 90% or an important service has failed."), "bad"),
+        tone(stat(6, "Offline", f"count(({health}) == 0) or vector(0)", 16, 3, w=4, description="Node Exporter did not answer the last scrape."), "bad"),
+        tone(stat(7, "No Data", f"count(({health}) == 4) or vector(0)", 20, 3, w=4, description="The exporter answered, but CPU metrics are missing."), "warn"),
+        tone(stat(8, "Websites", 'count(probe_success{job="blackbox-http"}) or vector(0)', 0, 7, w=4, description="Sites checked by Blackbox."), "info"),
+        tone(stat(9, "Websites up", 'count(probe_success{job="blackbox-http"} == 1) or vector(0)', 4, 7, w=4), "good"),
+        tone(stat(10, "Websites down", 'count(probe_success{job="blackbox-http"} == 0) or vector(0)', 8, 7, w=4), "bad"),
+        tone(stat(11, "Critical alerts", 'count(ALERTS{alertstate="firing",severity="critical"}) or vector(0)', 12, 7, w=6, description="Firing critical alerts for servers and websites."), "bad"),
+        tone(stat(12, "Warning alerts", 'count(ALERTS{alertstate="firing",severity="warning"}) or vector(0)', 18, 7, w=6, description="Firing warning alerts. Open Alerts and Logs for how long each one has lasted."), "warn"),
+        row(13, "SERVERS", 11),
+        server_table(14, "Server health", 12, 8, ""),
+        row(15, "WHAT NEEDS ATTENTION", 20),
+        attention_table(16, "Current problems", 21, 8, ""),
+        row(17, "SERVICES", 29),
+        service_table(18, "Service status", 30, 10, ""),
+        row(19, "MONITORING STACK", 40),
+        stat(20, "Prometheus", 'up{job="prometheus"}', 0, 41, w=5, h=4, mappings=UP_MAP, no_value="Offline"),
+        stat(21, "Grafana", 'up{job="grafana"}', 5, 41, w=5, h=4, mappings=UP_MAP, no_value="Offline"),
+        stat(22, "Blackbox", 'up{job="blackbox-exporter"}', 10, 41, w=5, h=4, mappings=UP_MAP, no_value="Offline"),
+        stat(23, "Alertmanager", 'up{job="alertmanager"}', 15, 41, w=4, h=4, mappings=UP_MAP, no_value="Offline"),
+        stat(24, "Loki", 'up{job="loki"}', 19, 41, w=5, h=4, mappings=UP_MAP, no_value="Offline"),
     ]
-    for item in panels:
-        if item["title"] in {"Servers DOWN", "Websites DOWN", "Critical Alerts"}:
-            item["fieldConfig"]["defaults"]["thresholds"] = {
-                "mode": "absolute",
-                "steps": [{"color": "green", "value": None}, {"color": "red", "value": 1}],
-            }
-        elif item["title"] == "Warning Alerts":
-            item["fieldConfig"]["defaults"]["thresholds"] = {
-                "mode": "absolute",
-                "steps": [{"color": "green", "value": None}, {"color": "orange", "value": 1}],
-            }
-        elif item["title"] in {"Servers UP", "Websites UP"}:
-            item["fieldConfig"]["defaults"]["thresholds"] = {
-                "mode": "absolute",
-                "steps": [{"color": "red", "value": None}, {"color": "green", "value": 1}],
-            }
     dash["panels"] = panels
     return dash
 
@@ -451,13 +1210,13 @@ def infrastructure():
 def server_detail():
     dash = shell()
     sel = ',server=~"^(?:${server})$"'
-    job = f'job=~"server-0[123]"{sel}'
-    exprs = server_metric_exprs(sel)
+    m = job_metrics(sel)
+    job = m["job"]
     dash.update(
         {
             "uid": "server-detail",
             "title": "Server Detail",
-            "description": "One server at a time. Select All to compare the three servers.",
+            "description": "One server, or all three. Gauges turn orange at 80% and red at 90%.",
             "tags": ["operations", "servers"],
             "templating": {
                 "list": [
@@ -482,76 +1241,170 @@ def server_detail():
             },
         }
     )
-    cards = []
-    titles = [
-        ("Status", "up_status", UP_MAP, None),
-        ("CPU", "cpu_pct", None, "percent"),
-        ("Memory", "mem_pct", None, "percent"),
-        ("Swap", "swap_pct", None, "percent"),
-        ("Disk", "disk_pct", None, "percent"),
-        ("Load", "load1", None, "none"),
-        ("Uptime", "uptime_s", None, "s"),
+    swap_steps = [
+        {"color": "green", "value": None},
+        {"color": "orange", "value": 50},
+        {"color": "red", "value": 80},
     ]
-    for index, (title, key, mapping, unit) in enumerate(titles):
-        width = 4 if index < 3 else 3
-        x = sum(4 if i < 3 else 3 for i in range(index)) if index < 3 else 12 + (index - 3) * 3
-        # 4+4+4=12, then 3*4=12. Wait 7 cards: 3*4=12 and 4*3=12. Indices 0,1,2 width 4. 3,4,5,6 width 3.
-        if index < 3:
-            x = index * 4
-            w = 4
-        else:
-            x = 12 + (index - 3) * 3
-            w = 3
-        cards.append(
-            stat(
-                index + 1,
-                title,
-                named(exprs[key], key, "server"),
-                x,
-                0,
-                w=w,
-                h=4,
-                mappings=mapping,
-                unit=unit,
-                decimals=2 if title == "Load" else 0,
-                description="Filtered by the server variable.",
-            )
-        )
-    graphs = [
-        ("CPU", f'avg by (server) (100 - (rate(node_cpu_seconds_total{{mode="idle",{job}}}[5m]) * 100))', "percent", 0),
-        ("Memory", f'max by (server) ((1 - (node_memory_MemAvailable_bytes{{{job}}} / node_memory_MemTotal_bytes{{{job}}})) * 100)', "percent", 12),
-        ("Swap", f"max by (server) ({exprs['swap_pct']})", "percent", 0),
-        ("Disk", exprs["disk_pct"].replace("max by (server, environment)", "max by (server)"), "percent", 12),
-        ("Load", f"max by (server) (node_load1{{{job}}})", "none", 0),
-        ("Network Receive", f'sum by (server) (rate(node_network_receive_bytes_total{{device!~"lo|veth.*|docker.*|br-.*",{job}}}[5m]))', "Bps", 12),
-        ("Network Transmit", f'sum by (server) (rate(node_network_transmit_bytes_total{{device!~"lo|veth.*|docker.*|br-.*",{job}}}[5m]))', "Bps", 0),
-    ]
-    panels = cards + [row(8, "TIME SERIES", 4)]
-    y = 5
-    pid = 20
-    for title, expr, unit, x in graphs:
-        if x == 0 and pid != 20:
-            y += 8
-        panels.append(timeseries(pid, title, expr, x, y, 12, 8, unit))
-        pid += 1
-    y += 8
-    panels.append(row(30, "SERVICES ON THIS SERVER", y))
-    panels.append(service_table(31, "Service Status", y + 1, 10, sel))
-    panels.append(
+    panels = [
+        note(
+            1,
+            "CPU, memory, and disk gauges are orange from 80% and red from 90%. "
+            "Swap is orange from 50% because using disk as memory slows the server. "
+            "Load per CPU above 1.5 means work is waiting. "
+            "A single zombie process is shown but does not mark the server unhealthy.",
+            0,
+            3,
+        ),
+        gauge(2, "CPU", m["cpu_server"], 0, 3, 6, 6, "Share of CPU time that is not idle, averaged over 5 minutes."),
+        gauge(3, "Memory", m["memory_server"], 6, 3, 6, 6, "RAM that applications cannot use. Linux cache counts as available."),
+        gauge(
+            4,
+            "Disk",
+            m["disk_server"],
+            12,
+            3,
+            6,
+            6,
+            "Fullest data filesystem. The EFI partition is excluded.",
+        ),
+        gauge(
+            5,
+            "Swap",
+            m["swap_server"],
+            18,
+            3,
+            6,
+            6,
+            "Share of swap in use. 0% on a server with no swap file is normal.",
+            steps=swap_steps,
+        ),
+        show_each(stat(
+            6, "Health", health_expr(sel), 0, 9, w=4, h=4, mappings=HEALTH_MAP, decimals=0, no_value="No Data",
+            description="Combined status from CPU, memory, disk, swap, load, failed services, and whether metrics are arriving.",
+        )),
+        show_each(stat(
+            7, "Uptime", m["uptime"], 4, 9, w=4, h=4, unit="s", decimals=0,
+            description="Time since the last boot.",
+        )),
+        show_each(stat(
+            8, "Load", m["load"], 8, 9, w=4, h=4, unit="none", decimals=2,
+            description="1-minute load average. Compare it with CPUs. A load above the CPU count means work is queued.",
+        )),
+        show_each(stat(
+            9, "CPUs", m["cpus"], 12, 9, w=4, h=4, decimals=0,
+            description="Number of CPU cores Node Exporter can see.",
+        )),
+        show_each(stat(
+            10, "Load per CPU", m["load_ratio"], 16, 9, w=4, h=4, unit="none", decimals=2,
+            description="Load divided by CPU count. Above 1.5 the server is overloaded.",
+        )),
+        show_each(stat(
+            11, "Reboots in 7 days", f"max by (server) (changes(node_boot_time_seconds{{{job}}}[7d]))", 20, 9, w=4, h=4, decimals=0,
+            description="How many times the boot time changed in 7 days. This is context, not a failure by itself.",
+        )),
+        row(12, "IDENTITY", 13),
+        identity_table(13, 14, sel),
+        row(14, "MEMORY", 20),
+        memory_table(15, 21, sel),
+        row(16, "DISK SPACE", 27),
+        filesystem_table(17, 28, sel),
+        row(18, "WHAT NEEDS ATTENTION", 36),
+        tone(stat(
+            19,
+            "Problems right now",
+            f"count({attention_expr(sel)}) or vector(0)",
+            0,
+            37,
+            w=6,
+            h=4,
+            description="Count of live checks outside their limit for the selected server.",
+        ), "bad"),
         {
-            "id": 32,
+            "id": 20,
             "type": "text",
-            "title": "Next step",
-            "gridPos": {"h": 3, "w": 24, "x": 0, "y": y + 11},
+            "gridPos": {"h": 4, "w": 18, "x": 6, "y": 37},
             "options": {
                 "mode": "markdown",
-                "content": "If a service is FAILED or a resource is high, open **Alerts and Logs** and filter the same server.",
+                "content": (
+                    "The first table is the live measurement. The second table is the matching alert and how long it has been firing. "
+                    "Open **Alerts and Logs** for the service log."
+                ),
             },
-        }
-    )
+        },
+    ]
+    panels.extend([
+        attention_table(21, "Current problems", 41, 8, sel),
+        firing_alert_table(22, 49, "^(?:${server})$"),
+        row(23, "TRENDS", 57),
+    ])
+    charts = [
+        ("CPU", m["cpu_server"], "percent", "CPU percent over time. The dashed lines are 80% and 90%.", {"maximum": 100, "thresholds": PERCENT_STEPS}),
+        ("Memory", m["memory_server"], "percent", "Memory percent over time.", {"maximum": 100, "thresholds": PERCENT_STEPS}),
+        ("Root disk", m["root"], "percent", "Main filesystem (/) only. Other filesystems are in the disk table.", {"maximum": 100, "thresholds": PERCENT_STEPS}),
+        ("Swap", m["swap_server"], "percent", "Swap percent over time. A long orange stretch means memory pressure is not a short spike.", {"maximum": 100, "thresholds": swap_steps}),
+        ("Load", m["load_server"], "none", "1-minute load average.", {"decimals": 2}),
+        ("Load per CPU", m["load_ratio_server"], "none", "Load divided by CPU count.", {"decimals": 2}),
+        ("Download", f'sum by (server) (rate(node_network_receive_bytes_total{{{NET_DEV},{job}}}[5m]))', "Bps", "Traffic arriving at the server, excluding loopback and Docker bridges.", {}),
+        ("Upload", f'sum by (server) (rate(node_network_transmit_bytes_total{{{NET_DEV},{job}}}[5m]))', "Bps", "Traffic leaving the server, excluding loopback and Docker bridges.", {}),
+        ("Disk read", f'sum by (server) (rate(node_disk_read_bytes_total{{{DISK_DEV},{job}}}[5m]))', "Bps", "Bytes read per second from real disks. CD-ROM devices are excluded.", {}),
+        ("Disk write", f'sum by (server) (rate(node_disk_written_bytes_total{{{DISK_DEV},{job}}}[5m]))', "Bps", "Bytes written per second from real disks.", {}),
+        ("Disk busy", f'max by (server) (rate(node_disk_io_time_seconds_total{{{DISK_DEV},{job}}}[5m]) * 100)', "percent", "How much of the time the disk was busy. Near 100% the disk is the bottleneck.", {"maximum": 100, "thresholds": PERCENT_STEPS}),
+        ("Network errors", f'sum by (server) (rate(node_network_receive_errs_total{{{NET_DEV},{job}}}[5m]) + rate(node_network_transmit_errs_total{{{NET_DEV},{job}}}[5m]))', "ops", "Receive and transmit errors per second on real interfaces.", {}),
+        ("Dropped packets", f'sum by (server) (rate(node_network_receive_drop_total{{{NET_DEV},{job}}}[5m]) + rate(node_network_transmit_drop_total{{{NET_DEV},{job}}}[5m]))', "ops", "Receive and transmit drops per second. Occasional drops can be normal; a sustained rise is not.", {}),
+    ]
+    y = 58
+    pid = 30
+    for index, (title, expr, unit, description, opts) in enumerate(charts):
+        x = 0 if index % 2 == 0 else 12
+        if index and x == 0:
+            y += 8
+        panels.append(timeseries(pid, title, expr, x, y, 12, 8, unit, description, **opts))
+        pid += 1
+    y += 8
+    panels.append(row(pid, "SERVICES", y))
+    pid += 1
+    y += 1
+    panels.append(service_table(pid, "Service status", y, 10, sel))
+    pid += 1
+    y += 10
+    panels.append(row(pid, "PROCESSES", y))
+    pid += 1
+    y += 1
+    panels.append(show_each(stat(
+        pid, "Running", proc_count(sel, "R"), 0, y, w=8, h=4, decimals=0,
+        description="Programs actively using a CPU at the last sample.",
+    )))
+    pid += 1
+    panels.append(show_each(tone(stat(
+        pid, "Waiting on disk", proc_count(sel, "D"), 8, y, w=8, h=4, decimals=0,
+        description="Programs stuck in uninterruptible disk wait. A few can be normal during writes. Five or more is a problem.",
+    ), "info")))
+    panels[-1]["fieldConfig"]["defaults"]["thresholds"] = {
+        "mode": "absolute",
+        "steps": [{"color": "green", "value": None}, {"color": "orange", "value": 5}],
+    }
+    pid += 1
+    panels.append(show_each(stat(
+        pid, "Zombies", proc_count(sel, "Z"), 16, y, w=8, h=4, decimals=0,
+        description="Finished programs whose parent has not collected them. One is usually harmless. Ten or more means an application is leaking child processes.",
+    )))
+    panels[-1]["fieldConfig"]["defaults"]["thresholds"] = {
+        "mode": "absolute",
+        "steps": [{"color": "green", "value": None}, {"color": "orange", "value": 10}],
+    }
+    pid += 1
+    y += 4
+    panels.append(note(
+        pid,
+        "Docker container status, CPU, memory, and restarts are **not available**. "
+        "This stack does not run cAdvisor. The service table above shows only whether the Docker service itself is running. "
+        "Adding container panels would require installing cAdvisor on each server and a new Prometheus scrape job.",
+        y,
+        3,
+    ))
     dash["panels"] = panels
     return dash
-
 
 def empty_or(expr, label, metric):
     placeholder = (
@@ -1037,30 +1890,8 @@ def alerts_logs():
         {
             "matcher": {"id": "byName", "options": "Alert"},
             "properties": [
-                {"id": "custom.width", "value": 240},
-                {
-                    "id": "mappings",
-                    "value": [{
-                        "type": "value",
-                        "options": {
-                            "WebsiteDown": {"text": "Website is down"},
-                            "WebsiteSlow": {"text": "Website is slow"},
-                            "SSLCertificateExpiringSoon": {"text": "SSL expires within 14 days"},
-                            "SSLCertificateCritical": {"text": "SSL expires within 3 days"},
-                            "ServerDown": {"text": "Server is down"},
-                            "NodeExporterDown": {"text": "Node Exporter is down"},
-                            "HighCPU": {"text": "CPU above 80%"},
-                            "CriticalCPU": {"text": "CPU above 95%"},
-                            "HighMemory": {"text": "Memory above 80%"},
-                            "CriticalMemory": {"text": "Memory above 90%"},
-                            "HighDisk": {"text": "Disk above 80%"},
-                            "CriticalDisk": {"text": "Disk above 90%"},
-                            "HighLoad": {"text": "Load is high"},
-                            "HighSwap": {"text": "Swap above 50%"},
-                            "MonitoringComponentDown": {"text": "Monitoring component is down"},
-                        },
-                    }],
-                },
+                {"id": "custom.width", "value": 280},
+                {"id": "mappings", "value": ALERT_TEXT_MAP},
                 {
                     "id": "links",
                     "value": [

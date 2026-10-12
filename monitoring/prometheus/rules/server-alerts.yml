@@ -152,13 +152,15 @@ groups:
             1 -
             (
               node_filesystem_avail_bytes{
-                fstype!~"tmpfs|overlay|squashfs",
-                mountpoint="/"
+                job=~"server-0[123]",
+                fstype!~"tmpfs|devtmpfs|overlay|squashfs|aufs",
+                mountpoint!~"/boot/efi"
               }
               /
               node_filesystem_size_bytes{
-                fstype!~"tmpfs|overlay|squashfs",
-                mountpoint="/"
+                job=~"server-0[123]",
+                fstype!~"tmpfs|devtmpfs|overlay|squashfs|aufs",
+                mountpoint!~"/boot/efi"
               }
             )
           ) * 100 > 80
@@ -170,8 +172,8 @@ groups:
           category: disk
 
         annotations:
-          summary: "High disk usage on {{ $labels.server }}"
-          description: "Root filesystem on {{ $labels.server }} has been above 80% usage for more than 10 minutes."
+          summary: "High disk usage on {{ $labels.server }} ({{ $labels.mountpoint }})"
+          description: "Filesystem {{ $labels.mountpoint }} on {{ $labels.server }} has been above 80% for more than 10 minutes."
 
 
       - alert: CriticalDisk
@@ -180,13 +182,15 @@ groups:
             1 -
             (
               node_filesystem_avail_bytes{
-                fstype!~"tmpfs|overlay|squashfs",
-                mountpoint="/"
+                job=~"server-0[123]",
+                fstype!~"tmpfs|devtmpfs|overlay|squashfs|aufs",
+                mountpoint!~"/boot/efi"
               }
               /
               node_filesystem_size_bytes{
-                fstype!~"tmpfs|overlay|squashfs",
-                mountpoint="/"
+                job=~"server-0[123]",
+                fstype!~"tmpfs|devtmpfs|overlay|squashfs|aufs",
+                mountpoint!~"/boot/efi"
               }
             )
           ) * 100 > 90
@@ -198,8 +202,49 @@ groups:
           category: disk
 
         annotations:
-          summary: "Critical disk usage on {{ $labels.server }}"
-          description: "Root filesystem on {{ $labels.server }} has been above 90% usage for more than 5 minutes."
+          summary: "Critical disk usage on {{ $labels.server }} ({{ $labels.mountpoint }})"
+          description: "Filesystem {{ $labels.mountpoint }} on {{ $labels.server }} has been above 90% for more than 5 minutes."
+
+
+      - alert: DiskFillingSoon
+        expr: |
+          (
+            node_filesystem_avail_bytes{
+              job=~"server-0[123]",
+              fstype!~"tmpfs|devtmpfs|overlay|squashfs|aufs",
+              mountpoint!~"/boot/efi"
+            }
+            /
+            (
+              -delta(
+                node_filesystem_avail_bytes{
+                  job=~"server-0[123]",
+                  fstype!~"tmpfs|devtmpfs|overlay|squashfs|aufs",
+                  mountpoint!~"/boot/efi"
+                }[6h]
+              ) * 4
+            )
+          ) < 14
+          and
+          (
+            -delta(
+              node_filesystem_avail_bytes{
+                job=~"server-0[123]",
+                fstype!~"tmpfs|devtmpfs|overlay|squashfs|aufs",
+                mountpoint!~"/boot/efi"
+              }[6h]
+            ) > 0
+          )
+
+        for: 1h
+
+        labels:
+          severity: warning
+          category: disk
+
+        annotations:
+          summary: "Disk filling on {{ $labels.server }} ({{ $labels.mountpoint }})"
+          description: "At the last 6 hours of growth, {{ $labels.mountpoint }} on {{ $labels.server }} runs out of space in under 14 days."
 
 
   # ==========================================================
@@ -212,10 +257,11 @@ groups:
 
       - alert: HighLoad
         expr: |
-          node_load1
-          /
+          node_load1{job=~"server-0[123]"}
+          / on(server, instance) group_left
           count by (server, instance) (
             node_cpu_seconds_total{
+              job=~"server-0[123]",
               mode="idle"
             }
           )
@@ -262,3 +308,101 @@ groups:
         annotations:
           summary: "High swap usage on {{ $labels.server }}"
           description: "Swap usage on {{ $labels.server }} has been above 50% for more than 10 minutes."
+
+
+  # ==========================================================
+  # SERVICES
+  # ==========================================================
+  - name: server-services
+    interval: 30s
+
+    rules:
+
+      - alert: ServiceFailed
+        expr: |
+          node_systemd_unit_state{
+            job=~"server-0[123]",
+            name=~"apache2.service|nginx.service|mysql.service|mariadb.service|postgresql@16-main.service|docker.service|php8.2-fpm.service|php8.3-fpm.service|php8.4-fpm.service|redis.service|redis-server.service|ssh.service",
+            state="failed"
+          } == 1
+        for: 2m
+        labels:
+          severity: critical
+          category: service
+        annotations:
+          summary: "{{ $labels.name }} failed on {{ $labels.server }}"
+          description: "{{ $labels.name }} on {{ $labels.server }} has been in a failed state for more than 2 minutes."
+
+      - alert: ServiceStopped
+        expr: |
+          node_systemd_unit_state{
+            job=~"server-0[123]",
+            name=~"apache2.service|nginx.service|mysql.service|mariadb.service|postgresql@16-main.service|docker.service|php8.2-fpm.service|php8.3-fpm.service|php8.4-fpm.service|redis.service|redis-server.service|ssh.service",
+            state="inactive"
+          } == 1
+        for: 10m
+        labels:
+          severity: warning
+          category: service
+        annotations:
+          summary: "{{ $labels.name }} is stopped on {{ $labels.server }}"
+          description: "{{ $labels.name }} is installed on {{ $labels.server }} but has been stopped for more than 10 minutes."
+
+
+  # ==========================================================
+  # NETWORK, PROCESSES, STALE DATA, REBOOT
+  # ==========================================================
+  - name: server-network
+    interval: 30s
+
+    rules:
+
+      - alert: NetworkErrors
+        expr: |
+          sum by (server, instance) (
+            rate(node_network_receive_errs_total{job=~"server-0[123]",device!~"lo|veth.*|docker.*|br-.*"}[5m])
+            +
+            rate(node_network_transmit_errs_total{job=~"server-0[123]",device!~"lo|veth.*|docker.*|br-.*"}[5m])
+          ) > 1
+        for: 10m
+        labels:
+          severity: warning
+          category: network
+        annotations:
+          summary: "Network errors on {{ $labels.server }}"
+          description: "Network errors on {{ $labels.server }} have stayed above 1 per second for more than 10 minutes."
+
+      - alert: ZombieProcesses
+        expr: |
+          sum by (server, instance) (
+            node_processes_state{job=~"server-0[123]",state="Z"}
+          ) >= 10
+        for: 10m
+        labels:
+          severity: warning
+          category: process
+        annotations:
+          summary: "Many zombie processes on {{ $labels.server }}"
+          description: "{{ $labels.server }} has had 10 or more zombie processes for more than 10 minutes."
+
+      - alert: MonitoringDataStale
+        expr: |
+          (time() - timestamp(up{job=~"server-0[123]"})) > 120
+        for: 2m
+        labels:
+          severity: warning
+          category: monitoring
+        annotations:
+          summary: "Monitoring data is stale on {{ $labels.server }}"
+          description: "The latest Node Exporter sample for {{ $labels.server }} is more than 2 minutes old."
+
+      - alert: ServerRebooted
+        expr: |
+          changes(node_boot_time_seconds{job=~"server-0[123]"}[30m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          category: availability
+        annotations:
+          summary: "{{ $labels.server }} rebooted"
+          description: "{{ $labels.server }} booted during the last 30 minutes. Confirm the restart was planned and that services came back."
